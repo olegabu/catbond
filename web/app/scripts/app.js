@@ -1,5 +1,7 @@
 angular.module('app', ['ui.router',
                        'ui.bootstrap',
+                       'timeService',
+                       'userService',
                        'peerService',
                        'demoController',
                        'config'])
@@ -13,6 +15,6 @@ angular.module('app', ['ui.router',
     url: '/',
     templateUrl: 'partials/demo.html',
     controller: 'DemoController as ctl'
-  });
+  })
 
 });

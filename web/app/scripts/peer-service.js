@@ -3,7 +3,7 @@
  * @classdesc
  * @ngInject
  */
-function PeerService($log, $q, $http, cfg) {
+function PeerService($log, $q, $http, cfg, UserService) {
 
   // jshint shadow: true
   var PeerService = this;
@@ -15,8 +15,7 @@ function PeerService($log, $q, $http, cfg) {
         'chaincodeID': {
           name: cfg.chaincodeID
         },
-        'ctorMsg': {},
-        'secureContext': cfg.secureContext
+        'ctorMsg': {}
       },
       'id': 0
   };
@@ -27,6 +26,7 @@ function PeerService($log, $q, $http, cfg) {
     payload.method = 'invoke';
     payload.params.ctorMsg['function'] = functionName;
     payload.params.ctorMsg.args = functionArgs;
+    payload.secureContext = UserService.getUser();
 
     $log.debug('payload', payload);
 
@@ -43,6 +43,7 @@ function PeerService($log, $q, $http, cfg) {
     payload.method = 'query';
     payload.params.ctorMsg['function'] = functionName;
     payload.params.ctorMsg.args = functionArgs;
+    payload.secureContext = UserService.getUser();
 
     $log.debug('payload', payload);
 
