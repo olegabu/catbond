@@ -8,12 +8,12 @@
         <div class="panel-heading"><i class="fa fa-bars"></i> Menu for {{ctl.user.role}}</div>
         <div class="panel-body">
           <ul ng-if="ctl.user.role === 'issuer'" class="list-inline">
-            <li><a ui-sref="demo.issuerContractList">Contracts</a></li>
-            <li><a ui-sref="demo.bondList">Bonds</a></li>
+            <li><a ui-sref="demo.issuerContractList" ui-sref-active="menu-active">Contracts</a></li>
+            <li><a ui-sref="demo.bondList" ui-sref-active="menu-active">Bonds</a></li>
           </ul>
           <ul ng-if="ctl.user.role === 'investor'" class="list-inline">
-            <li><a ui-sref="demo.investorContractList">Contracts</a></li>
-            <li><a ui-sref="demo.market">Market</a></li>
+            <li><a ui-sref="demo.investorContractList" ui-sref-active="menu-active">Contracts</a></li>
+            <li><a ui-sref="demo.market" ui-sref-active="menu-active">Market</a></li>
           </ul>
         </div>
       </div>

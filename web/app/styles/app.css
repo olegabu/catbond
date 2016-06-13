@@ -7,6 +7,10 @@
   font-size: 2em;
 }
 
+.menu-active {
+	font-weight: bold;
+}
+
 /* fixes content shifting left on modal open https://github.com/twbs/bootstrap/commit/3f87bf46e463b113760a2e45158a684825bf9d50 */ 
 body.modal-open,
 .modal-open .navbar-fixed-top,
