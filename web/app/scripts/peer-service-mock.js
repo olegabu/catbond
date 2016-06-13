@@ -27,15 +27,21 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
   };
 
-  PeerService.getTrade = function(id) {
+  PeerService.getTrade = function(contractId) {
     return _.filter(cfg.trades, function(o) {
-      return o.contractId === id;
+      return o.contractId === contractId;
     });
   };
 
   PeerService.getBonds = function() {
     return _.filter(cfg.bonds, function(o) {
       return o.issuerId === UserService.getUser().id;
+    });
+  };
+
+  PeerService.getBond = function(bondId) {
+    return _.filter(cfg.bonds, function(o) {
+      return o.id === bondId;
     });
   };
 
