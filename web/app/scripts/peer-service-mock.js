@@ -39,6 +39,12 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
   };
 
+  PeerService.getTransfers = function() {
+    return _.filter(cfg.trades, function(o) {
+      return o.state === 'captured';
+    });
+  };
+
   PeerService.getTrade = function(contractId) {
     return _.filter(cfg.trades, function(o) {
       return o.contractId === contractId;
@@ -98,9 +104,7 @@ function PeerService($log, $q, $http, cfg, UserService) {
       return o.id === trade.id;
     });
 
-    //TODO first put the trade in captured state
-    // later payment oracle sets it to settled
-    t.state = 'settled';
+    t.state = 'captured';
     t.buyerId = buyerId;
 
     var c = _.find(cfg.contracts, function(o) {
@@ -117,8 +121,6 @@ function PeerService($log, $q, $http, cfg, UserService) {
       return o.contractId === trade.id;
     });
 
-    // TODO first put the trade in captured state
-    // later payment oracle sets it to settled
     t.state = 'offer';
     t.sellerId = sellerId;
 
@@ -129,6 +131,22 @@ function PeerService($log, $q, $http, cfg, UserService) {
     c.ownerId = sellerId;
   };
 
+  PeerService.transfer = function(trade) {
+    var buyerId = trade.buyerId;
+
+    var t = _.find(cfg.trades, function(o) {
+      return o.id === trade.id;
+    });
+
+    t.state = 'settled';
+    t.buyerId = buyerId;
+
+    var c = _.find(cfg.contracts, function(o) {
+      return o.id === trade.contractId;
+    });
+
+    c.ownerId = buyerId;
+  };
 }
 
 angular.module('peerService', []).service('PeerService', PeerService);

@@ -10,6 +10,7 @@ angular.module('app', ['ui.router',
                        'auditorContractListController',
                        'auditorBondListController',
                        'auditorTradeListController',
+                       'paymentOracleController',
                        'marketController',
                        'config'])
 
@@ -58,5 +59,10 @@ angular.module('app', ['ui.router',
     templateUrl: 'partials/market.html',
     controller: 'MarketController as ctl'
   })
+  .state('demo.transfers', {
+    url: 'payment-oracle',
+    templateUrl: 'partials/transfer-list.html',
+    controller: 'PaymentOracleController as ctl'
+  });
 
 });

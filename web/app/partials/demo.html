@@ -1,8 +1,10 @@
 <div class="container">
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-12">
       <h1>CatBond</h1>
     </div><!-- /column -->
+  </row>
+  <row>
     <div class="col-md-3">
       <div class="panel panel-default">
         <div class="panel-heading"><i class="fa fa-bars"></i> Menu for {{ctl.user.role}}</div>
@@ -38,6 +40,17 @@
         <div class="panel-heading"><i class="fa fa-clock-o"></i> Current Date</div>
         <div class="panel-body" ng-click="ctl.tick()" ng-dblclick="ctl.clock()">
           <h5>{{ctl.now() | date:'longDate'}}</h5>
+        </div>
+      </div>
+    </div><!-- /column -->
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading"><i class="fa fa-clock-o"></i> Oracle</div>
+        <div class="panel-body">
+          <ul class="list-inline">
+            <li><a ui-sref="demo.transfers">Payment Oracle</a></li>
+            <li><a ui-sref="demo.auditorBondList">Catastrophe Oracle</a></li>
+          </ul>
         </div>
       </div>
     </div><!-- /column -->
