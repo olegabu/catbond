@@ -1,0 +1,16 @@
+<table class="table">
+  <thead>
+	  <tr>
+	    <th>contract</th>
+	    <th>owner</th>
+	    <th>coupons paid</th>
+	  </tr>
+  </thead>
+  <tbody>
+	  <tr ng-repeat="o in ctl.list">
+	    <td>{{o.id}}</td>
+	    <td>{{o.ownerId}}</td>
+	    <td>{{o.couponsPaid}}</td>
+	  </tr>
+  </tbody>
+</table>
