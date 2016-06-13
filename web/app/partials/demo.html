@@ -15,6 +15,11 @@
             <li><a ui-sref="demo.investorContractList">Contracts</a></li>
             <li><a ui-sref="demo.market">Market</a></li>
           </ul>
+          <ul ng-if="ctl.user.role === 'auditor'" class="list-inline">
+            <li><a ui-sref="demo.auditorContractList">Contracts</a></li>
+            <li><a ui-sref="demo.auditorBondList">Bonds</a></li>
+            <li><a ui-sref="demo.auditorTradeList">Trades</a></li>
+          </ul>
         </div>
       </div>
     </div><!-- /column -->
@@ -22,7 +27,7 @@
       <div class="panel panel-default">
         <div class="panel-heading"><i class="fa fa-user"></i> Logged in User</div>
         <div class="panel-body">
-          <select class="form-control" ng-model="ctl.user" 
+          <select class="form-control" ng-model="ctl.user"
           ng-options="u.id for u in ctl.users"
           ng-change="ctl.setUser()"></select>
         </div>

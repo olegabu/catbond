@@ -7,13 +7,16 @@ angular.module('app', ['ui.router',
                        'bondListController',
                        'issuerContractListController',
                        'investorContractListController',
+                       'auditorContractListController',
+                       'auditorBondListController',
+                       'auditorTradeListController',
                        'marketController',
                        'config'])
-                       
+
 .config(function($stateProvider, $urlRouterProvider) {
-  
+
   $urlRouterProvider.otherwise('/');
-  
+
   $stateProvider
   .state('demo', {
     url: '/',
@@ -29,6 +32,21 @@ angular.module('app', ['ui.router',
     url: 'investor-contracts',
     templateUrl: 'partials/investor-contract-list.html',
     controller: 'InvestorContractListController as ctl'
+  })
+  .state('demo.auditorContractList', {
+    url: 'auditor-contracts',
+    templateUrl: 'partials/auditor-contract-list.html',
+    controller: 'AuditorContractListController as ctl'
+  })
+  .state('demo.auditorBondList', {
+    url: 'auditor-bonds',
+    templateUrl: 'partials/auditor-bond-list.html',
+    controller: 'AuditorBondListController as ctl'
+  })
+  .state('demo.auditorTradeList', {
+    url: 'auditor-trades',
+    templateUrl: 'partials/auditor-trades-list.html',
+    controller: 'AuditorTradeListController as ctl'
   })
   .state('demo.bondList', {
     url: 'bonds',

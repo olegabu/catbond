@@ -21,6 +21,18 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
   };
 
+  PeerService.getAuditorContracts = function() {
+    return cfg.contracts;
+  };
+
+  PeerService.getAuditorBonds = function() {
+    return cfg.bonds;
+  };
+
+  PeerService.getAuditorTrades = function() {
+    return cfg.trades;
+  };
+
   PeerService.getOffers = function() {
     return _.filter(cfg.trades, function(o) {
       return o.state === 'offer';
