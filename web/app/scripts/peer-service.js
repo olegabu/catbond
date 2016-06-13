@@ -26,7 +26,7 @@ function PeerService($log, $q, $http, cfg, UserService) {
     payload.method = 'invoke';
     payload.params.ctorMsg['function'] = functionName;
     payload.params.ctorMsg.args = functionArgs;
-    payload.secureContext = UserService.getUser();
+    payload.secureContext = UserService.getUser().id;
 
     $log.debug('payload', payload);
 
@@ -43,7 +43,7 @@ function PeerService($log, $q, $http, cfg, UserService) {
     payload.method = 'query';
     payload.params.ctorMsg['function'] = functionName;
     payload.params.ctorMsg.args = functionArgs;
-    payload.secureContext = UserService.getUser();
+    payload.secureContext = UserService.getUser().id;
 
     $log.debug('payload', payload);
 

@@ -3,7 +3,7 @@
  * @classdesc
  * @ngInject
  */
-function DemoController($log, $q, $interval, $timeout, 
+function DemoController($log, $state, 
     cfg, TimeService, UserService, PeerService) {
 
   var ctl = this;
@@ -24,8 +24,15 @@ function DemoController($log, $q, $interval, $timeout,
 
   ctl.users = UserService.getUsers();
   
-  ctl.setUser = function(u) {
-    UserService.setUser(u);
+  ctl.setUser = function() {
+    UserService.setUser(ctl.user);
+
+    if(ctl.user.role === 'issuer') {
+      $state.go('demo.issuerContractList');
+    }
+    else if(ctl.user.role === 'investor') {
+      $state.go('demo.investorContractList');
+    }
   };
 
 }
