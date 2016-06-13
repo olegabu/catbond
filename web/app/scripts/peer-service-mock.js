@@ -45,6 +45,10 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
   };
 
+  PeerService.getTriggers = function() {
+    return cfg.triggers;
+  };
+
   PeerService.getTrade = function(contractId) {
     return _.filter(cfg.trades, function(o) {
       return o.contractId === contractId;
@@ -146,6 +150,16 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
 
     c.ownerId = buyerId;
+  };
+
+  PeerService.trigger = function(catastrophe) {
+    var bonds = _.filter(cfg.bonds, function(o) {
+      return o.trigger === catastrophe;
+    });
+
+    bonds.forEach(function(bond) {
+      bond.state = 'triggered';
+    });
   };
 }
 

@@ -1,0 +1,18 @@
+<table class="table">
+  <thead>
+	  <tr>
+      <th>Trigger</th>
+	    <th>Catastrophe</th>
+      <th>action</th>
+	  </tr>
+  </thead>
+  <tbody>
+	  <tr>
+      <td>Catastrophe</td>
+      <td><select ng-model="ctl.catastrophe">
+        <option ng-repeat="o in ctl.list" value="{{o}}">{{o}}</option>
+      </select></td>
+      <td><button ng-click="ctl.trigger(ctl.catastrophe)" class="btn btn-sm btn-primary">Trigger</button></td>
+	  </tr>
+  </tbody>
+</table>

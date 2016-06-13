@@ -11,6 +11,7 @@ angular.module('app', ['ui.router',
                        'auditorBondListController',
                        'auditorTradeListController',
                        'paymentOracleController',
+                       'catastropheOracleController',
                        'marketController',
                        'config'])
 
@@ -63,6 +64,11 @@ angular.module('app', ['ui.router',
     url: 'payment-oracle',
     templateUrl: 'partials/transfer-list.html',
     controller: 'PaymentOracleController as ctl'
+  })
+  .state('demo.triggers', {
+    url: 'catastrophe-oracle',
+    templateUrl: 'partials/trigger-list.html',
+    controller: 'CatastropheOracleController as ctl'
   });
 
 });
