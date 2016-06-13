@@ -33,15 +33,36 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
   };
   
+  var getMaturityDate = function(term) {
+    var now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + term, now.getDate());
+  };
+  
+  var getMaturityDateString = function(term) {
+    var m = getMaturityDate(term);
+    return m.getFullYear() + '.' + (m.getMonth() + 1) + '.' + m.getDate();
+  };
+  
   PeerService.createBond = function(bond) {
     bond.issuerId = UserService.getUser().id;
-    //TODO calculate maturity date from term, use it for the id in place of term
-    bond.id = bond.issuerId + '.' + bond.term + '.' + bond.rate;
+    bond.maturityDate = getMaturityDateString(bond.term);
+    bond.state = 'active';
+
+    bond.id = bond.issuerId + '.' + bond.maturityDate + '.' + bond.rate;
     
-    //TODO fail if bond with this id already exists
+    // fail if bond with this id already exists
+    var exist = _.find(cfg.bonds, function(o) {
+      return o.id === bond.id;
+    });
+    
+    if(exist) {
+      $log.error('bond already exists', exist);
+      return;
+    }
+    
     cfg.bonds.push(bond);
     
-    // create contracts and offer them for sale: create trades
+    // create contracts and offer them for sale: create trades in offer state
     var numContracts = bond.principal / 100000;
     var i;
     
@@ -51,7 +72,8 @@ function PeerService($log, $q, $http, cfg, UserService) {
           bondId: bond.id,
           issuerId: bond.issuerId,
           ownerId: bond.issuerId,
-          couponsPaid: 0
+          couponsPaid: 0,
+          state: 'active'
       };
       
       var trade = {

@@ -3,7 +3,8 @@
 	  <tr>
 	    <th>bond</th>
 	    <th>principal</th>
-	    <th>term</th>
+      <th>term</th>
+      <th>maturity date</th>
 	    <th>rate</th>
 	    <th>catastrophe</th>
 	    <th>state</th>
@@ -11,14 +12,15 @@
   </thead>
   <tfoot>
     <tr>
-      <td colspan="6"><button class="btn btn-primary" ng-click="ctl.open()">Issue Bond</button></td>
+      <td colspan="7"><button class="btn btn-primary" ng-click="ctl.open()">Issue Bond</button></td>
     </tr>
   </tfoot>
   <tbody>
 	  <tr ng-repeat="o in ctl.list">
 	    <td>{{o.id}}</td>
 	    <td>{{o.principal | currency:"$":0}}</td>
-	    <td>{{o.term}}  months</td>
+      <td>{{o.term}}  months</td>
+      <td>{{o.maturityDate}}</td>
 	    <td>{{o.rate / 100 | number}}%</td>
 	    <td>{{o.trigger}}</td>
 	    <td>{{o.state}}</td>
