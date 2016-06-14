@@ -20,6 +20,12 @@ function PeerService($log, $q, $http, cfg, UserService) {
       return o.ownerId === UserService.getUser().id;
     });
   };
+  
+  PeerService.getInvestorTrades = function() {
+    return _.filter(cfg.trades, function(o) {
+      return o.sellerId === UserService.getUser().id;
+    });
+  };
 
   PeerService.getAuditorContracts = function() {
     return cfg.contracts;
@@ -67,15 +73,37 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
   };
 
+  var getMaturityDate = function(term) {
+    var now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + term, now.getDate());
+  };
+
+  var getMaturityDateString = function(term) {
+    var m = getMaturityDate(term);
+    return m.getFullYear() + '.' + (m.getMonth() + 1) + '.' + m.getDate();
+  };
+
   PeerService.createBond = function(bond) {
     bond.issuerId = UserService.getUser().id;
-    //TODO calculate maturity date from term, use it for the id in place of term
-    bond.id = bond.issuerId + '.' + bond.term + '.' + bond.rate;
+    bond.maturityDate = getMaturityDateString(bond.term);
+    bond.state = 'active';
 
-    //TODO fail if bond with this id already exists
+    bond.id = bond.issuerId + '.' + bond.maturityDate + '.' + bond.rate;
+
+    // fail if bond with this id already exists
+    var exist = _.find(cfg.bonds, function(o) {
+      return o.id === bond.id;
+    });
+
+    if(exist) {
+      $log.error('bond already exists', exist);
+      return;
+    }
+
     cfg.bonds.push(bond);
 
-    // create contracts and offer them for sale: create trades
+    // create contracts and offer them for sale: create trades in offer state
+
     var numContracts = bond.principal / 100000;
     var i;
 
@@ -85,7 +113,8 @@ function PeerService($log, $q, $http, cfg, UserService) {
           bondId: bond.id,
           issuerId: bond.issuerId,
           ownerId: bond.issuerId,
-          couponsPaid: 0
+          couponsPaid: 0,
+          state: 'offer'
       };
 
       var trade = {
@@ -100,6 +129,7 @@ function PeerService($log, $q, $http, cfg, UserService) {
       cfg.trades.push(trade);
     }
   };
+
 
   PeerService.buyContract = function(trade) {
     var buyerId = UserService.getUser().id;
@@ -150,6 +180,47 @@ function PeerService($log, $q, $http, cfg, UserService) {
     });
 
     c.ownerId = buyerId;
+  };
+
+  PeerService.buy = function(tradeId) {
+    var buyerId = UserService.getUser().id;
+
+    var trade = _.find(cfg.trades, function(o) {
+      return o.id === tradeId;
+    });
+
+    //TODO first put the trade in captured state
+    // later payment oracle sets it to settled
+    trade.state = 'settled';
+    trade.buyerId = buyerId;
+
+    var contract = _.find(cfg.contracts, function(o) {
+      return o.id === trade.contractId;
+    });
+
+    contract.state = 'active';
+    contract.ownerId = buyerId;
+  };
+
+  PeerService.sell = function(contractId, price) {
+    var sellerId = UserService.getUser().id;
+
+    var contract = _.find(cfg.contracts, function(o) {
+      return o.id === contractId;
+    });
+
+    // set contract's state so it cannot be sold twice
+    contract.state = 'offer';
+
+    var trade = {
+        id: tradeId++,
+        contractId: contract.id,
+        sellerId: sellerId,
+        price: price,
+        state: 'offer'
+    }
+
+    cfg.trades.push(trade);
   };
 
   PeerService.trigger = function(catastrophe) {

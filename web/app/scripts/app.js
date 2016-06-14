@@ -4,9 +4,11 @@ angular.module('app', ['ui.router',
                        'userService',
                        'peerService',
                        'demoController',
+                       'oraclesController',
                        'bondListController',
                        'issuerContractListController',
                        'investorContractListController',
+                       'investorTradeListController',
                        'auditorContractListController',
                        'auditorBondListController',
                        'auditorTradeListController',
@@ -35,6 +37,11 @@ angular.module('app', ['ui.router',
     templateUrl: 'partials/investor-contract-list.html',
     controller: 'InvestorContractListController as ctl'
   })
+  .state('demo.investorTradeList', {
+    url: 'investor-trades',
+    templateUrl: 'partials/investor-trade-list.html',
+    controller: 'InvestorTradeListController as ctl'
+  })
   .state('demo.auditorContractList', {
     url: 'auditor-contracts',
     templateUrl: 'partials/auditor-contract-list.html',
@@ -60,12 +67,17 @@ angular.module('app', ['ui.router',
     templateUrl: 'partials/market.html',
     controller: 'MarketController as ctl'
   })
-  .state('demo.transfers', {
+  .state('oracles', {
+    url: '/oracles/',
+    templateUrl: 'partials/oracles.html',
+    controller: 'OraclesController as ctl'
+  })
+  .state('oracles.transfers', {
     url: 'payment-oracle',
-    templateUrl: 'partials/transfer-list.html',
+    templateUrl: 'partials/transfer-form.html',
     controller: 'PaymentOracleController as ctl'
   })
-  .state('demo.triggers', {
+  .state('oracles.triggers', {
     url: 'catastrophe-oracle',
     templateUrl: 'partials/trigger-list.html',
     controller: 'CatastropheOracleController as ctl'

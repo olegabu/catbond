@@ -1,21 +1,20 @@
 <div class="container">
   <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-3">
       <h1>CatBond</h1>
-    </div><!-- /column -->
-  </row>
-  <row>
+    </div>
     <div class="col-md-3">
       <div class="panel panel-default">
         <div class="panel-heading"><i class="fa fa-bars"></i> Menu for {{ctl.user.role}}</div>
         <div class="panel-body">
           <ul ng-if="ctl.user.role === 'issuer'" class="list-inline">
-            <li><a ui-sref="demo.issuerContractList">Contracts</a></li>
-            <li><a ui-sref="demo.bondList">Bonds</a></li>
+            <li><a ui-sref="demo.issuerContractList" ui-sref-active="menu-active">Contracts</a></li>
+            <li><a ui-sref="demo.bondList" ui-sref-active="menu-active">Bonds</a></li>
           </ul>
           <ul ng-if="ctl.user.role === 'investor'" class="list-inline">
-            <li><a ui-sref="demo.investorContractList">Contracts</a></li>
-            <li><a ui-sref="demo.market">Market</a></li>
+            <li><a ui-sref="demo.investorContractList" ui-sref-active="menu-active">Contracts</a></li>
+            <li><a ui-sref="demo.investorTradeList" ui-sref-active="menu-active">Trades</a></li>
+            <li><a ui-sref="demo.market" ui-sref-active="menu-active">Market</a></li>
           </ul>
           <ul ng-if="ctl.user.role === 'auditor'" class="list-inline">
             <li><a ui-sref="demo.auditorContractList">Contracts</a></li>
@@ -37,19 +36,10 @@
     </div><!-- /column -->
     <div class="col-md-3">
       <div class="panel panel-default">
-        <div class="panel-heading"><i class="fa fa-clock-o"></i> Current Date</div>
-        <div class="panel-body" ng-click="ctl.tick()" ng-dblclick="ctl.clock()">
-          <h5>{{ctl.now() | date:'longDate'}}</h5>
-        </div>
-      </div>
-    </div><!-- /column -->
-    <div class="col-md-3">
-      <div class="panel panel-default">
         <div class="panel-heading"><i class="fa fa-clock-o"></i> Oracle</div>
         <div class="panel-body">
           <ul class="list-inline">
-            <li><a ui-sref="demo.transfers">Payment Oracle</a></li>
-            <li><a ui-sref="demo.triggers">Catastrophe Oracle</a></li>
+            <li><a target="_blank" ui-sref="oracles">Oracles</a></li>
           </ul>
         </div>
       </div>

@@ -42,10 +42,10 @@ function CreateBondModalController($uibModalInstance, cfg) {
   
   ctl.triggers = cfg.triggers;
   
-  ctl.o = {term: 24, principal: 100000, rate: 600, trigger: cfg.triggers[0]};
+  ctl.bond = {term: 24, principal: 100000, rate: 600, trigger: cfg.triggers[0]};
   
   ctl.ok = function () {
-    $uibModalInstance.close(ctl.o);
+    $uibModalInstance.close(ctl.bond);
   };
 
   ctl.cancel = function () {

@@ -18,38 +18,34 @@ function InvestorContractListController($scope, $log, $interval, $uibModal, Peer
   $scope.$on('$viewContentLoaded', init);
 
   $interval(init, 1000);
-
-  ctl.open = function(trade) {
+  
+  ctl.open = function(contract) {
     var modalInstance = $uibModal.open({
       templateUrl: 'sell-contract-modal.html',
       controller: 'SellModalController as ctl',
       resolve: {
         trade: function() {
-          return trade;
+          return {
+            contractId: contract.id,
+            price: 100,
+          }
         }
       }
     });
 
-    modalInstance.result.then(function(o) {
-      PeerService.sellContract(o);
+    modalInstance.result.then(function(trade) {
+      PeerService.sell(trade.contractId, trade.price);
     });
   };
 
-  ctl.create = function() {
-
-  };
-
-  ctl.cancel = function() {
-    modalInstance.dismiss('cancel');
-  };
 }
 
-function SellModalController($uibModalInstance, cfg, trade) {
+function SellModalController($uibModalInstance, trade) {
 
   var ctl = this;
-
+  
   ctl.trade = trade;
-
+  
   ctl.ok = function () {
     $uibModalInstance.close(ctl.trade);
   };

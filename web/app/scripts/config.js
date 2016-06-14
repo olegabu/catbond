@@ -11,80 +11,86 @@ angular.module('config', [])
           {id: 'auditor0', role: 'auditor'}],
   triggers: ['hurricane 2 FL', 'earthquake 5 CA'],
   bonds: [{
-            id: 'issuer0.12.600',
+            id: 'issuer0.2017.6.13.600',
             issuerId: 'issuer0',
             principal: 500000,
             term: 12,
+            maturityDate: '2017.6.13',
             rate: 600,
             trigger: 'hurricane 2 FL',
-            state: 'active'
+            state: 'offer'
           }],
   contracts: [{
-            id: 'issuer0.12.600.0',
+            id: 'issuer0.2017.6.13.600.0',
             issuerId: 'issuer0',
-            bondId: 'issuer0.12.600',
+            bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
-            couponsPaid: 0
+            couponsPaid: 0,
+            state: 'offer'
           },
           {
-            id: 'issuer0.12.600.1',
+            id: 'issuer0.2017.6.13.600.1',
             issuerId: 'issuer0',
-            bondId: 'issuer0.12.600',
+            bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
-            couponsPaid: 0
+            couponsPaid: 0,
+            state: 'offer'
           },
           {
-            id: 'issuer0.12.600.2',
+            id: 'issuer0.2017.6.13.600.2',
             issuerId: 'issuer0',
-            bondId: 'issuer0.12.600',
+            bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
-            couponsPaid: 0
+            couponsPaid: 0,
+            state: 'offer'
           },
           {
-            id: 'issuer0.12.600.3',
+            id: 'issuer0.2017.6.13.600.3',
             issuerId: 'issuer0',
-            bondId: 'issuer0.12.600',
+            bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
-            couponsPaid: 0
+            couponsPaid: 0,
+            state: 'offer'
           },
           {
-            id: 'issuer0.12.600.4',
+            id: 'issuer0.2017.6.13.600.4',
             issuerId: 'issuer0',
-            bondId: 'issuer0.12.600',
+            bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
-            couponsPaid: 0
+            couponsPaid: 0,
+            state: 'offer'
           }],
     trades: [{
             id: 1000,
-            contractId: 'issuer0.12.600.0',
+            contractId: 'issuer0.2017.6.13.600.0',
             sellerId: 'issuer0',
             price: 100,
             state: 'offer'
           },
           {
             id: 1001,
-            contractId: 'issuer0.12.600.1',
+            contractId: 'issuer0.2017.6.13.600.1',
             sellerId: 'issuer0',
             price: 100,
             state: 'offer'
           },
           {
             id: 1002,
-            contractId: 'issuer0.12.600.2',
+            contractId: 'issuer0.2017.6.13.600.2',
             sellerId: 'issuer0',
             price: 100,
             state: 'offer'
           },
           {
             id: 1003,
-            contractId: 'issuer0.12.600.3',
+            contractId: 'issuer0.2017.6.13.600.3',
             sellerId: 'issuer0',
             price: 100,
             state: 'offer'
           },
           {
             id: 1004,
-            contractId: 'issuer0.12.600.4',
+            contractId: 'issuer0.2017.6.13.600.4',
             sellerId: 'issuer0',
             price: 100,
             state: 'offer'
