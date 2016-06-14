@@ -8,7 +8,7 @@ function InvestorContractListController($scope, $log, $interval, $uibModal, Peer
   var ctl = this;
 
   var init = function() {
-    ctl.list = PeerService.getInvestorContracts();
+    ctl.list = PeerService.getContracts();
     ctl.list.forEach(function (list) {
       var trade = PeerService.getTrade(list.id);
       list.price = trade[0].price;
@@ -18,7 +18,7 @@ function InvestorContractListController($scope, $log, $interval, $uibModal, Peer
   $scope.$on('$viewContentLoaded', init);
 
   $interval(init, 1000);
-  
+
   ctl.open = function(contract) {
     var modalInstance = $uibModal.open({
       templateUrl: 'sell-contract-modal.html',
@@ -43,9 +43,9 @@ function InvestorContractListController($scope, $log, $interval, $uibModal, Peer
 function SellModalController($uibModalInstance, trade) {
 
   var ctl = this;
-  
+
   ctl.trade = trade;
-  
+
   ctl.ok = function () {
     $uibModalInstance.close(ctl.trade);
   };

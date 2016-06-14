@@ -9,34 +9,27 @@ function PeerService($log, $q, $http, cfg, UserService) {
   var PeerService = this;
   var tradeId = 1100;
 
-  PeerService.getIssuerContracts = function() {
+  PeerService.getContracts = function() {
+    var role = UserService.getUser().role;
     return _.filter(cfg.contracts, function(o) {
-      return o.issuerId === UserService.getUser().id;
+      var userId = UserService.getUser().id;
+      if (role === 'issuer')
+        return o.issuerId === userId;
+      if (role === 'investor')
+        return o.ownerId === userId;
+      if (role === 'auditor')
+        return o;
     });
   };
 
-  PeerService.getInvestorContracts = function() {
-    return _.filter(cfg.contracts, function(o) {
-      return o.ownerId === UserService.getUser().id;
-    });
-  };
-  
-  PeerService.getInvestorTrades = function() {
+  PeerService.getTrades = function() {
+    var role = UserService.getUser().role;
     return _.filter(cfg.trades, function(o) {
-      return o.sellerId === UserService.getUser().id;
+      if (role === 'investor')
+        return o.sellerId === UserService.getUser().id;
+      if (role === 'auditor')
+        return o;
     });
-  };
-
-  PeerService.getAuditorContracts = function() {
-    return cfg.contracts;
-  };
-
-  PeerService.getAuditorBonds = function() {
-    return cfg.bonds;
-  };
-
-  PeerService.getAuditorTrades = function() {
-    return cfg.trades;
   };
 
   PeerService.getOffers = function() {
@@ -62,8 +55,12 @@ function PeerService($log, $q, $http, cfg, UserService) {
   };
 
   PeerService.getBonds = function() {
+    var role = UserService.getUser().role;
     return _.filter(cfg.bonds, function(o) {
-      return o.issuerId === UserService.getUser().id;
+      if (role === 'issuer')
+        return o.issuerId === UserService.getUser().id;
+      if (role === 'auditor')
+        return o;
     });
   };
 
@@ -130,56 +127,34 @@ function PeerService($log, $q, $http, cfg, UserService) {
     }
   };
 
-
-  PeerService.buyContract = function(trade) {
-    var buyerId = UserService.getUser().id;
-
-    var t = _.find(cfg.trades, function(o) {
-      return o.id === trade.id;
-    });
-
-    t.state = 'captured';
-    t.buyerId = buyerId;
-
-    var c = _.find(cfg.contracts, function(o) {
-      return o.id === trade.contractId;
-    });
-
-    c.ownerId = buyerId;
-  };
-
-  PeerService.sellContract = function(trade) {
-    var sellerId = UserService.getUser().id;
-
-    var t = _.find(cfg.trades, function(o) {
-      return o.contractId === trade.id;
-    });
-
-    t.state = 'offer';
-    t.sellerId = sellerId;
-
-    var c = _.find(cfg.contracts, function(o) {
-      return o.id === trade.id;
-    });
-
-    c.ownerId = sellerId;
-  };
-
-  PeerService.transfer = function(trade) {
-    var buyerId = trade.buyerId;
-
-    var t = _.find(cfg.trades, function(o) {
-      return o.id === trade.id;
-    });
-
-    t.state = 'settled';
-    t.buyerId = buyerId;
-
-    var c = _.find(cfg.contracts, function(o) {
-      return o.id === trade.contractId;
-    });
-
-    c.ownerId = buyerId;
+  PeerService.transfer = function(transferData) {
+    var splits = transferData.note.split('.');
+    var action = splits[0];
+    if (action === 'trade') {
+      var tradeId = parseFloat(splits[1]);
+      var t = _.find(cfg.trades, function(o) {
+        return o.id === tradeId;
+      });
+      t.state = 'settled';
+    }
+    if (action === 'coupon' || action === 'premium') {
+      splits.splice(0,1);
+      var contractId = splits.join('.');
+      var contract = _.find(cfg.contracts, function(o) {
+        console.log('o.id', o.id);
+        console.log('contractId', contractId);
+        console.log('o.id typeof', typeof o.id);
+        console.log('contractId typeof', typeof contractId);
+        return o.id === contractId;
+      });
+      if(action === 'coupon') {
+        contract.couponsPaid += 1;
+      }
+      if(action === 'premium') {
+        contract.state === 'cancel';
+      }
+    }
+    return transferData;
   };
 
   PeerService.buy = function(tradeId) {

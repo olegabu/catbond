@@ -8,7 +8,7 @@ function AuditorBondListController($scope, $log, $interval, PeerService) {
   var ctl = this;
 
   var init = function() {
-    ctl.list = PeerService.getAuditorBonds();
+    ctl.list = PeerService.getBonds();
   };
 
   $scope.$on('$viewContentLoaded', init);

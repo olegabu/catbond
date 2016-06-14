@@ -1,4 +1,7 @@
 <div class="col-md-6 col-md-offset-3">
+  <div ng-if="ctl.msg" class="alert alert-success" role="alert">
+    {{ctl.msg}}
+  </div>
   <form ng-submit="ctl.transfer(ctl.transferData)">
     <div class="form-group">
       <label> Date:</label>

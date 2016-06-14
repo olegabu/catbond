@@ -8,7 +8,7 @@ function IssuerContractListController($scope, $log, $interval, PeerService) {
   var ctl = this;
 
   var init = function() {
-    ctl.list = PeerService.getIssuerContracts();
+    ctl.list = PeerService.getContracts();
     ctl.list.forEach(function (list) {
       var bond = PeerService.getBond(list.bondId);
       list.state = bond[0].state;

@@ -8,7 +8,7 @@ function AuditorTradeListController($scope, $log, $interval, PeerService) {
   var ctl = this;
 
   var init = function() {
-    ctl.list = PeerService.getAuditorTrades();
+    ctl.list = PeerService.getTrades();
   };
 
   $scope.$on('$viewContentLoaded', init);

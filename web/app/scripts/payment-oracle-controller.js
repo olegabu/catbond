@@ -6,18 +6,15 @@
 function PaymentOracleController($scope, $log, $interval, PeerService) {
 
   var ctl = this;
-
-  var init = function() {
-    ctl.transferData = {}
-    ctl.transferData.date = new Date();
-  };
-
-  $scope.$on('$viewContentLoaded', init);
-
-  $interval(init, 1000);
+  ctl.transferData = {}
+  ctl.transferData.date = new Date();
 
   ctl.transfer = function(transfer) {
-    return PeerService.transfer(transfer);
+    PeerService.transfer(transfer);
+    ctl.msg = "Transfer has been done!";
+    ctl.transferData = {};
+    ctl.transferData.date = new Date();
+    return ctl.transferData;
   };
 
 }

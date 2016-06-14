@@ -8,7 +8,7 @@ function InvestorTradeListController($scope, $log, $interval, $uibModal, PeerSer
   var ctl = this;
 
   var init = function() {
-    ctl.list = PeerService.getInvestorTrades();
+    ctl.list = PeerService.getTrades();
   };
 
   $scope.$on('$viewContentLoaded', init);
