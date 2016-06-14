@@ -8,7 +8,8 @@
   </thead>
   <tbody>
 	  <tr ng-repeat="o in ctl.list">
-      <td><a href ng-click="ctl.open(o)">{{o.contractId}}</a></td>
+      <td ng-if="o.sellerId !== ctl.user.id"><a href title="buy contract" ng-click="ctl.open(o)">{{o.contractId}}</a></td>
+      <td ng-if="o.sellerId === ctl.user.id" title="my contract">{{o.contractId}}</td>
       <td>{{o.sellerId}}</td>
       <td>{{o.price}}</td>
 	  </tr>
@@ -19,7 +20,6 @@
 <div class="modal-header">
 <h3 class="modal-title">Buy Contract</h3>
 </div>
-<form name="modalForm">
 <div class="modal-body">
   <dl class="dl-horizontal">
     <dt>contract</dt>
@@ -37,5 +37,4 @@
 ng-click="ctl.ok()" ng-disabled="modalForm.$invalid">Buy</button>
 <button class="btn btn-warning" type="button" ng-click="ctl.cancel()">Cancel</button>
 </div>
-</form>
 </script>

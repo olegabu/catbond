@@ -73,7 +73,7 @@ function PeerService($log, $q, $http, cfg, UserService) {
           issuerId: bond.issuerId,
           ownerId: bond.issuerId,
           couponsPaid: 0,
-          state: 'active'
+          state: 'offer'
       };
       
       var trade = {
@@ -89,23 +89,45 @@ function PeerService($log, $q, $http, cfg, UserService) {
     }
   };
   
-  PeerService.buyContract = function(trade) {
+  PeerService.buy = function(tradeId) {
     var buyerId = UserService.getUser().id;
     
-    var t = _.find(cfg.trades, function(o) {
-      return o.id === trade.id;
+    var trade = _.find(cfg.trades, function(o) {
+      return o.id === tradeId;
     });
     
     //TODO first put the trade in captured state 
     // later payment oracle sets it to settled
-    t.state = 'settled';
-    t.buyerId = buyerId;
+    trade.state = 'settled';
+    trade.buyerId = buyerId;
     
-    var c = _.find(cfg.contracts, function(o) {
+    var contract = _.find(cfg.contracts, function(o) {
       return o.id === trade.contractId;
     });
+
+    contract.state = 'active';
+    contract.ownerId = buyerId;
+  };
+  
+  PeerService.sell = function(contractId, price) {
+    var sellerId = UserService.getUser().id;
     
-    c.ownerId = buyerId;
+    var contract = _.find(cfg.contracts, function(o) {
+      return o.id === contractId;
+    });
+    
+    // set contract's state so it cannot be sold twice
+    contract.state = 'offer';
+    
+    var trade = {
+        id: tradeId++,
+        contractId: contract.id,
+        sellerId: sellerId,
+        price: price,
+        state: 'offer'
+    }
+    
+    cfg.trades.push(trade);
   };
 
 }

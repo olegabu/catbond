@@ -18,7 +18,7 @@ angular.module('config', [])
             maturityDate: '2017.6.13',
             rate: 600,
             trigger: 'hurricane 2 FL',
-            state: 'active'
+            state: 'offer'
           }],
   contracts: [{
             id: 'issuer0.2017.6.13.600.0',
@@ -26,7 +26,7 @@ angular.module('config', [])
             bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
             couponsPaid: 0,
-            state: 'active'
+            state: 'offer'
           },
           {
             id: 'issuer0.2017.6.13.600.1',
@@ -34,7 +34,7 @@ angular.module('config', [])
             bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
             couponsPaid: 0,
-            state: 'active'
+            state: 'offer'
           },
           {
             id: 'issuer0.2017.6.13.600.2',
@@ -42,7 +42,7 @@ angular.module('config', [])
             bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
             couponsPaid: 0,
-            state: 'active'
+            state: 'offer'
           },
           {
             id: 'issuer0.2017.6.13.600.3',
@@ -50,7 +50,7 @@ angular.module('config', [])
             bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
             couponsPaid: 0,
-            state: 'active'
+            state: 'offer'
           },
           {
             id: 'issuer0.2017.6.13.600.4',
@@ -58,7 +58,7 @@ angular.module('config', [])
             bondId: 'issuer0.2017.6.13.600',
             ownerId: 'issuer0',
             couponsPaid: 0,
-            state: 'active'
+            state: 'offer'
           }],
     trades: [{
             id: 1000,

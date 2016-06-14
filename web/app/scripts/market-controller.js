@@ -3,7 +3,8 @@
  * @classdesc
  * @ngInject
  */
-function MarketController($scope, $log, $interval, $uibModal, PeerService) {
+function MarketController($scope, $log, $interval, $uibModal, 
+    UserService, PeerService) {
 
   var ctl = this;
   
@@ -14,6 +15,8 @@ function MarketController($scope, $log, $interval, $uibModal, PeerService) {
   $scope.$on('$viewContentLoaded', init);
   
   $interval(init, 1000);
+  
+  ctl.user = UserService.getUser();
   
   ctl.open = function(trade) {
     var modalInstance = $uibModal.open({
@@ -26,13 +29,9 @@ function MarketController($scope, $log, $interval, $uibModal, PeerService) {
       }
     });
 
-    modalInstance.result.then(function(o) {
-      PeerService.buyContract(o);
+    modalInstance.result.then(function(trade) {
+      PeerService.buy(trade.id);
     });
-  };
-  
-  ctl.create = function() {
-    
   };
   
   ctl.cancel = function() {
@@ -41,7 +40,7 @@ function MarketController($scope, $log, $interval, $uibModal, PeerService) {
 
 }
 
-function BuyModalController($uibModalInstance, cfg, trade) {
+function BuyModalController($uibModalInstance, trade) {
 
   var ctl = this;
   
