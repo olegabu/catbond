@@ -1,0 +1,22 @@
+<table class="table">
+  <thead>
+	  <tr>
+      <th>bond</th>
+	    <th>principal</th>
+	    <th>term</th>
+	    <th>rate</th>
+	    <th>catastrophe</th>
+	    <th>state</th>
+	  </tr>
+  </thead>
+  <tbody>
+	  <tr ng-repeat="o in ctl.list">
+      <td>{{o.id}}</td>
+	    <td>{{o.principal | currency:"$":0}}</td>
+	    <td>{{o.term}}  months</td>
+	    <td>{{o.rate / 100 | number}}%</td>
+	    <td>{{o.trigger}}</td>
+	    <td>{{o.state}}</td>
+	  </tr>
+  </tbody>
+</table>

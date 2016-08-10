@@ -1,0 +1,40 @@
+<div class="col-md-6 col-md-offset-3">
+  <div ng-if="ctl.msg" class="alert alert-success" role="alert">
+    {{ctl.msg}}
+  </div>
+  <form ng-submit="ctl.transfer(ctl.transferData)">
+    <div class="form-group">
+      <label> Date:</label>
+      <p class="form-control-static">{{ctl.transferData.date | date:longDate}}</p>
+    </div>
+    <div class="form-group">
+      <label> Transfer</label>
+    </div>
+    <div class="form-group">
+      <label> From:</label>
+      <input ng-model="ctl.transferData.from" placeholder="e.g.: 0001.1000" class="form-control" type="text">
+    </div>
+    <div class="form-group">
+      <label> To:</label>
+      <input ng-model="ctl.transferData.to" placeholder="e.g.: 0002.2000" class="form-control" type="text">
+    </div>
+    <div class="form-group">
+      <label> Amount:</label>
+      <div class="input-group">
+        <div class="input-group-addon">$</div>
+        <input ng-model="ctl.transferData.amount" placeholder="e.g.: 99000" class="form-control" type="text">
+      </div>
+    </div>
+    <div class="form-group">
+      <label> Note:</label>
+      <input ng-model="ctl.transferData.note" placeholder="e.g.: trade.1001 or coupon.issuer0.12.600.0 or premium.issuer0.12.600.0" class="form-control" type="text">
+    </div>
+    <div class="form-group">
+      <label> Catastrophe:</label>
+      <input ng-model="ctl.transferData.catastrophe" placeholder="e.g.: hurricane 2 FL" class="form-control" type="text">
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary">Transfer</button>
+    </div>
+  </form>
+</div>

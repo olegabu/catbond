@@ -1,5 +1,5 @@
 angular.module('config', [])
-.constant('cfg', 
+.constant('cfg',
     {
   endpoint: 'https://deadbeef-6d99-41a8-988a-c31ce4ae14dc_vp1-api.blockchain.ibm.com:443/chaincode',
   secureContext: 'user_type1_deadbeef',

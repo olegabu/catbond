@@ -3,19 +3,22 @@
  * @classdesc
  * @ngInject
  */
-function InvestorContractListController($scope, $log, $interval, $uibModal, 
-    PeerService) {
+function InvestorContractListController($scope, $log, $interval, $uibModal, PeerService) {
 
   var ctl = this;
-  
+
   var init = function() {
-    ctl.list = PeerService.getInvestorContracts();    
+    ctl.list = PeerService.getContracts();
+    ctl.list.forEach(function (list) {
+      var trade = PeerService.getTrade(list.id);
+      list.price = trade[0].price;
+    });
   };
-  
+
   $scope.$on('$viewContentLoaded', init);
-  
+
   $interval(init, 1000);
-  
+
   ctl.open = function(contract) {
     var modalInstance = $uibModal.open({
       templateUrl: 'sell-contract-modal.html',
@@ -40,9 +43,9 @@ function InvestorContractListController($scope, $log, $interval, $uibModal,
 function SellModalController($uibModalInstance, trade) {
 
   var ctl = this;
-  
+
   ctl.trade = trade;
-  
+
   ctl.ok = function () {
     $uibModalInstance.close(ctl.trade);
   };
@@ -51,6 +54,7 @@ function SellModalController($uibModalInstance, trade) {
     $uibModalInstance.dismiss('cancel');
   };
 }
+
 
 angular.module('investorContractListController', [])
 .controller('InvestorContractListController', InvestorContractListController)

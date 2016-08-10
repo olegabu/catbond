@@ -3,7 +3,7 @@
  * @classdesc
  * @ngInject
  */
-function IssuerContractListController($scope, $log, $interval, PeerService) {
+function AuditorContractListController($scope, $log, $interval, PeerService) {
 
   var ctl = this;
 
@@ -21,5 +21,5 @@ function IssuerContractListController($scope, $log, $interval, PeerService) {
 
 }
 
-angular.module('issuerContractListController', [])
-.controller('IssuerContractListController', IssuerContractListController);
+angular.module('auditorContractListController', [])
+.controller('AuditorContractListController', AuditorContractListController);
