@@ -32,6 +32,8 @@ func (t *BondChaincode) initContracts(stub *shim.ChaincodeStub) (error) {
 }
 
 func (t *BondChaincode) createContractsForBond(stub *shim.ChaincodeStub, bond_ bond, numberOfContracts uint64) ([]byte, error) {
+
+	log.Debugf("function: %s, args: %s", "createContractsForBond", bond_.Id)
 	if numberOfContracts > 128 {
 		return nil, errors.New("Wrong number of contracts to create for bond.")
 	}
@@ -49,6 +51,9 @@ func (t *BondChaincode) createContractsForBond(stub *shim.ChaincodeStub, bond_ b
 
 func (t *BondChaincode) createContract(stub *shim.ChaincodeStub, contract_ contract) ([]byte, error) {
 	//TODO Verify if contract with such id is created already
+
+	log.Debugf("function: %s, args: %s", "createContract", contract_.Id)
+
 	if ok, err := stub.InsertRow("Contracts", shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}},

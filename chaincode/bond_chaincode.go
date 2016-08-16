@@ -23,6 +23,12 @@ func (t *BondChaincode) Init(stub *shim.ChaincodeStub, function string, args []s
 	err := t.initBonds(stub)
 	if err != nil {
 		log.Criticalf("function: %s, args: %s", function, args)
+		return nil, errors.New("Failed creating Bond table.")
+	}
+	// Create bonds table
+	err = t.initContracts(stub)
+	if err != nil {
+		log.Criticalf("function: %s, args: %s", function, args)
 		return nil, errors.New("Failed creating Contracts table.")
 	}
 

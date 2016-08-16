@@ -6,3 +6,5 @@ web/node_modules
 web/ionic/plugins
 web/ionic/www/lib
 web/ionic/.io-config.json
+support/commands/HASH.txt
+chaincode/chaincode.iml
