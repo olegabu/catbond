@@ -1,26 +1,4 @@
-/*
-Copyright IBM Corp. 2016 All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-		 http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package main
-
-//WARNING - this chaincode's ID is hard-coded in chaincode_example04 to illustrate one way of
-//calling chaincode from a chaincode. If this example is modified, chaincode_example04.go has
-//to be modified as well with the new ID of chaincode_example02.
-//chaincode_example05 show's how chaincode ID can be passed in as a parameter instead of
-//hard-coding.
 
 import (
 	"errors"
@@ -64,16 +42,19 @@ func (t *BondChaincode) Invoke(stub *shim.ChaincodeStub, function string, args [
 
 		newBond.IssuerId = args[0]
 		newBond.MaturityDate = args[1]
+
 		principal, err := strconv.ParseUint(args[2], 10, 64)
 		if err != nil {
 			return nil, errors.New("Incorrect principa. Uint64 expected.")
 		}
 		newBond.Principal = principal
+
 		rate, err := strconv.ParseUint(args[3], 10, 64)
 		if err != nil {
 			return nil, errors.New("Incorrect rate. Uint64 expected.")
 		}
 		newBond.Rate = rate
+
 		term, err := strconv.ParseUint(args[4], 10, 64)
 		if err != nil {
 			return nil, errors.New("Incorrect term. Uint64 expected.")
@@ -83,7 +64,12 @@ func (t *BondChaincode) Invoke(stub *shim.ChaincodeStub, function string, args [
 		// TODO check with Oleg is state should be hardcoded on a contract level
 		newBond.State = "active"
 
-		return t.createBond(stub, newBond)
+		newBond.Id = newBond.IssuerId + "." + newBond.MaturityDate + "." + strconv.FormatUint(newBond.Rate, 10)
+
+		if msg, err := t.createBond(stub, newBond); err != nil {
+			return msg, err
+		}
+		return t.createContractsForBond(stub, newBond, 5)
 
 	} else if function == "createPolicy" {
 		if len(args) != 3 {
@@ -129,20 +115,20 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 
 		return json.Marshal(bonds)
 
-	} else if function == "getPolicy" {
-		//if len(args) != 1 {
-		//	return nil, errors.New("Incorrect number of arguments. Expecting policyID.")
-		//}
-		//
-		//policy, err := t.getPolicy(stub, args[0])
-		//if err != nil {
-		//	return nil, err
-		//}
-		//
-		//return json.Marshal(policy)
-		return nil, nil
+	} else if function == "getIssuerContracts" {
+		if len(args) != 1 {
+			return nil, errors.New("Incorrect arguments. Expecting issuerId.")
+		}
 
-	}else {
+		issuerId := args[0]
+		contracts, err := t.getIssuerContracts(stub, issuerId)
+		if err != nil {
+			return nil, err
+		}
+
+		return json.Marshal(contracts)
+
+	} else {
 		log.Errorf("function: %s, args: %s", function, args)
 		return nil, errors.New("Received unknown function invocation")
 	}

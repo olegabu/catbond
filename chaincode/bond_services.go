@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"errors"
-	"strconv"
 )
 
 //issuerId: 'issuer0',
@@ -29,7 +28,6 @@ type bond struct {
 
 
 func (t *BondChaincode) initBonds(stub *shim.ChaincodeStub) (error) {
-
 	// Create bonds table
 	err := stub.CreateTable("Bonds", []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "IssuerId", Type: shim.ColumnDefinition_STRING, Key: true},
@@ -84,9 +82,6 @@ func (t *BondChaincode) getBonds(stub *shim.ChaincodeStub, issuerID string) ([]b
 }
 
 func (t *BondChaincode) createBond(stub *shim.ChaincodeStub, bond_ bond) ([]byte, error) {
-
-	bond_.Id = bond_.IssuerId + "." + bond_.MaturityDate + "." + strconv.FormatUint(bond_.Rate, 10)
-
 	//TODO Verify if bond with such id is created already
 
 	if ok, err := stub.InsertRow("Bonds", shim.Row{
