@@ -86,7 +86,34 @@ func (t *BondChaincode) getIssuerContracts(stub *shim.ChaincodeStub, issuerId st
 		result.CouponsPaid = row.Columns[3].GetUint64()
 		result.State = row.Columns[4].GetString_()
 
-		log.Debugf("getContracts result includes: %+v", result)
+		log.Debugf("getIssuerContracts result includes: %+v", result)
+		contracts = append(contracts, result)
+	}
+
+	return contracts, nil
+}
+
+func (t *BondChaincode) getOwnerContracts(stub *shim.ChaincodeStub, ownerId string) (contracts []contract, err error) {
+	rows, err := stub.GetRows("Contracts", []shim.Column{})
+	if err != nil {
+		message := "Failed retrieving contracts. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	for row := range rows {
+		if row.Columns[1].GetString_() != ownerId {
+			continue
+		}
+		var result contract
+		result.IssuerId = row.Columns[0].GetString_()
+		result.OwnerId = row.Columns[1].GetString_()
+		result.Id = row.Columns[2].GetString_()
+		result.CouponsPaid = row.Columns[3].GetUint64()
+		result.State = row.Columns[4].GetString_()
+
+		contracts = append(contracts, result)
+		log.Debugf("getOwnerContracts result includes: %+v", result)
 	}
 
 	return contracts, nil

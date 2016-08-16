@@ -128,6 +128,19 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 
 		return json.Marshal(contracts)
 
+	} else if function == "getOwnerContracts" {
+		if len(args) != 1 {
+			return nil, errors.New("Incorrect arguments. Expecting ownerId.")
+		}
+
+		ownerId := args[0]
+		contracts, err := t.getOwnerContracts(stub, ownerId)
+		if err != nil {
+			return nil, err
+		}
+
+		return json.Marshal(contracts)
+
 	} else {
 		log.Errorf("function: %s, args: %s", function, args)
 		return nil, errors.New("Received unknown function invocation")
