@@ -9,7 +9,9 @@ function MarketController($scope, $log, $interval, $uibModal,
   var ctl = this;
   
   var init = function() {
-    ctl.list = PeerService.getOffers();    
+      PeerService.getOffers().then(function(list) {
+        ctl.list = list;
+      });
   };
   
   $scope.$on('$viewContentLoaded', init);
