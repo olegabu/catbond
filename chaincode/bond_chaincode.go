@@ -25,11 +25,17 @@ func (t *BondChaincode) Init(stub *shim.ChaincodeStub, function string, args []s
 		log.Criticalf("function: %s, args: %s", function, args)
 		return nil, errors.New("Failed creating Bond table.")
 	}
-	// Create bonds table
+	// Create contracts table
 	err = t.initContracts(stub)
 	if err != nil {
 		log.Criticalf("function: %s, args: %s", function, args)
 		return nil, errors.New("Failed creating Contracts table.")
+	}
+	// Create trades table
+	err = t.initTrades(stub)
+	if err != nil {
+		log.Criticalf("function: %s, args: %s", function, args)
+		return nil, errors.New("Failed creating Trades table.")
 	}
 
 	return nil, nil
@@ -147,22 +153,37 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 
 		return json.Marshal(contracts)
 
-	} else if function == "getOfferContracts" {
+	} else if function == "getOfferTrades" {
 		if len(args) != 0 {
 			return nil, errors.New("Incorrect arguments. Expecting no arguments.")
 		}
 
-		contracts, err := t.getOfferContracts(stub)
+		trades, err := t.getOfferTrades(stub)
 		if err != nil {
 			return nil, err
 		}
 
-		return json.Marshal(contracts)
+		return json.Marshal(trades)
 
 	} else {
 		log.Errorf("function: %s, args: %s", function, args)
 		return nil, errors.New("Received unknown function invocation")
 	}
+}
+
+func (t *BondChaincode) incrementAndGetCounter(stub *shim.ChaincodeStub, counterName string) (result uint64, err error) {
+	if contractIDBytes, err := stub.GetState(counterName); err != nil {
+		log.Errorf("Failed retrieving %s.", counterName)
+		return result, err
+	} else {
+		result, _ = strconv.ParseUint(string(contractIDBytes), 10, 64)
+	}
+	result++
+	if err = stub.PutState(counterName, []byte(strconv.FormatUint(result, 10))); err != nil {
+		log.Errorf("Failed saving %s!", counterName)
+		return result, err
+	}
+	return result, err
 }
 
 func main() {

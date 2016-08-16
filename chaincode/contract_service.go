@@ -53,6 +53,9 @@ func (t *BondChaincode) createContractsForBond(stub *shim.ChaincodeStub, bond_ b
 		if _, err := t.createContract(stub, contract_); err != nil {
 			return nil, err
 		}
+		if _, err := t.createTradeForContract(stub, contract_, 100); err != nil {
+			return nil, err
+		}
 	}
 	return nil, nil
 }
@@ -75,6 +78,38 @@ func (t *BondChaincode) createContract(stub *shim.ChaincodeStub, contract_ contr
 	}
 
 	return nil, nil
+}
+
+func (t *BondChaincode) changeContractState(stub *shim.ChaincodeStub, contract_ contract) (bool, error) {
+	log.Debug("Retrieving contract for changing state.")
+
+	var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}}
+	columns = append(columns, col1)
+	col2 := shim.Column{Value: &shim.Column_String_{String_: contract_.Id}}
+	columns = append(columns, col2)
+
+	row, err := stub.GetRow("Contracts", columns)
+	if err != nil {
+		message := "Failed retrieving contract ID " + contract_.Id + ". Error: " + err.Error()
+		log.Error(message)
+		return false, errors.New(message)
+	}
+
+	var result contract
+	result.readFromRow(row)
+	log.Debugf("Contract before changing state: %+v", result)
+
+	result.State = contract_.State
+
+	return stub.ReplaceRow("Claims", shim.Row{
+		Columns: []*shim.Column{
+			&shim.Column{Value: &shim.Column_String_{String_: result.IssuerId}},
+			&shim.Column{Value: &shim.Column_String_{String_: result.Id}},
+			&shim.Column{Value: &shim.Column_String_{String_: result.OwnerId}},
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: result.CouponsPaid}},
+			&shim.Column{Value: &shim.Column_String_{String_: result.State}}},
+	})
 }
 
 func (t *BondChaincode) getIssuerContracts(stub *shim.ChaincodeStub, issuerId string) (contracts []contract, err error) {
@@ -119,28 +154,6 @@ func (t *BondChaincode) getOwnerContracts(stub *shim.ChaincodeStub, ownerId stri
 
 		contracts = append(contracts, result)
 		log.Debugf("getOwnerContracts result includes: %+v", result)
-	}
-
-	return contracts, nil
-}
-
-func (t *BondChaincode) getOfferContracts(stub *shim.ChaincodeStub) (contracts []contract, err error) {
-	rows, err := stub.GetRows("Contracts", []shim.Column{})
-	if err != nil {
-		message := "Failed retrieving contracts. Error: " + err.Error()
-		log.Error(message)
-		return nil, errors.New(message)
-	}
-
-	for row := range rows {
-		if row.Columns[4].GetString_() != "offer" {
-			continue
-		}
-		var result contract
-		result.readFromRow(row)
-
-		contracts = append(contracts, result)
-		log.Debugf("getOfferContracts result includes: %+v", result)
 	}
 
 	return contracts, nil
