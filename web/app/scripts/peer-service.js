@@ -20,6 +20,10 @@ function PeerService($log, $q, $http, cfg, UserService) {
       'id': 0
   };
 
+  PeerService.getOffers = function() {
+    return query('getOfferContracts', []);
+  };
+
 
   PeerService.getIssuerContracts = function() {
     return query('getIssuerContracts', [UserService.getUser().id]);
