@@ -8,18 +8,26 @@ import (
 
 type contract struct {
 	IssuerId       string `json:"issuerId"`
-	OwnerId        string `json:"ownerId"`
 	Id             string `json:"id"`
+	OwnerId        string `json:"ownerId"`
 	CouponsPaid    uint64 `json:"couponsPaid"`
 	State          string `json:"state"`
+}
+
+func (contract_ *contract) readFromRow(row shim.Row) {
+	contract_.IssuerId 	= row.Columns[0].GetString_()
+	contract_.Id 		= row.Columns[1].GetString_()
+	contract_.OwnerId 	= row.Columns[2].GetString_()
+	contract_.CouponsPaid 	= row.Columns[3].GetUint64()
+	contract_.State 	= row.Columns[4].GetString_()
 }
 
 func (t *BondChaincode) initContracts(stub *shim.ChaincodeStub) (error) {
 	// Create contracts table
 	err := stub.CreateTable("Contracts", []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "IssuerId", Type: shim.ColumnDefinition_STRING, Key: true},
-		&shim.ColumnDefinition{Name: "OwnerId", Type: shim.ColumnDefinition_STRING, Key: true},
 		&shim.ColumnDefinition{Name: "ID", Type: shim.ColumnDefinition_STRING, Key: true},
+		&shim.ColumnDefinition{Name: "OwnerId", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "CouponsPaid", Type: shim.ColumnDefinition_UINT64, Key: false},
 		&shim.ColumnDefinition{Name: "State", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
@@ -52,8 +60,8 @@ func (t *BondChaincode) createContract(stub *shim.ChaincodeStub, contract_ contr
 	if ok, err := stub.InsertRow("Contracts", shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}},
-			&shim.Column{Value: &shim.Column_String_{String_: contract_.OwnerId}},
 			&shim.Column{Value: &shim.Column_String_{String_: contract_.Id}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.OwnerId}},
 			&shim.Column{Value: &shim.Column_Uint64{Uint64: contract_.CouponsPaid}},
 			&shim.Column{Value: &shim.Column_String_{String_: contract_.State}}},
 	}); !ok {
@@ -80,11 +88,7 @@ func (t *BondChaincode) getIssuerContracts(stub *shim.ChaincodeStub, issuerId st
 
 	for row := range rows {
 		var result contract
-		result.IssuerId = row.Columns[0].GetString_()
-		result.OwnerId = row.Columns[1].GetString_()
-		result.Id = row.Columns[2].GetString_()
-		result.CouponsPaid = row.Columns[3].GetUint64()
-		result.State = row.Columns[4].GetString_()
+		result.readFromRow(row)
 
 		log.Debugf("getIssuerContracts result includes: %+v", result)
 		contracts = append(contracts, result)
@@ -102,15 +106,11 @@ func (t *BondChaincode) getOwnerContracts(stub *shim.ChaincodeStub, ownerId stri
 	}
 
 	for row := range rows {
-		if row.Columns[1].GetString_() != ownerId {
+		if row.Columns[2].GetString_() != ownerId {
 			continue
 		}
 		var result contract
-		result.IssuerId = row.Columns[0].GetString_()
-		result.OwnerId = row.Columns[1].GetString_()
-		result.Id = row.Columns[2].GetString_()
-		result.CouponsPaid = row.Columns[3].GetUint64()
-		result.State = row.Columns[4].GetString_()
+		result.readFromRow(row)
 
 		contracts = append(contracts, result)
 		log.Debugf("getOwnerContracts result includes: %+v", result)
