@@ -8,12 +8,15 @@ function BondListController($scope, $log, $interval, $uibModal, PeerService) {
   var ctl = this;
   
   var init = function() {
-    ctl.list = PeerService.getBonds();    
+    // ctl.list = PeerService.getBonds();
+    PeerService.getBonds().then(function(list) {
+      ctl.list = list;
+    });
   };
   
   $scope.$on('$viewContentLoaded', init);
   
-  $interval(init, 1000);
+  $interval(init, 10000);
   
   ctl.open = function() {
     var modalInstance = $uibModal.open({
