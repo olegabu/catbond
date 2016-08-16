@@ -147,6 +147,18 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 
 		return json.Marshal(contracts)
 
+	} else if function == "getOfferContracts" {
+		if len(args) != 0 {
+			return nil, errors.New("Incorrect arguments. Expecting no arguments.")
+		}
+
+		contracts, err := t.getOfferContracts(stub)
+		if err != nil {
+			return nil, err
+		}
+
+		return json.Marshal(contracts)
+
 	} else {
 		log.Errorf("function: %s, args: %s", function, args)
 		return nil, errors.New("Received unknown function invocation")
