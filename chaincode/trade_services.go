@@ -86,7 +86,7 @@ func (t *BondChaincode) createTradeForContract(stub *shim.ChaincodeStub, contrac
 func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string) ([]byte, error) {
 	log.Debugf("function: %s, args: %s", "buy", contractId)
 	// TODO get buyer id
-	var newOwnerId string = "newOwnerId"
+	// var newOwnerId string = "newOwnerId"
 
 	trade_, err := t.getOfferTradeForContract(stub, contractId)
 	if err != nil {
@@ -123,6 +123,7 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string) ([]byte
 
 	// TODO add money transfer
 	// TODO transfer Contract ownership
+	return nil, nil
 }
 
 func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade, err error) {
@@ -159,7 +160,7 @@ func (t *BondChaincode) getOfferTradeForContract(stub *shim.ChaincodeStub, contr
 	if err != nil {
 		message := "Failed retrieving trade. Error: " + err.Error()
 		log.Error(message)
-		return nil, errors.New(message)
+		return trade{}, errors.New(message)
 	}
 
 	var result trade

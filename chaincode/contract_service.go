@@ -91,7 +91,7 @@ func (t *BondChaincode) getContract(stub *shim.ChaincodeStub, issuerId string, c
 	if err != nil {
 		message := "Failed retrieving contract ID " + contractId + ". Error: " + err.Error()
 		log.Error(message)
-		return nil, errors.New(message)
+		return contract{}, errors.New(message)
 	}
 
 	var result contract
