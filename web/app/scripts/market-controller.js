@@ -16,7 +16,7 @@ function MarketController($scope, $log, $interval, $uibModal,
   
   $scope.$on('$viewContentLoaded', init);
   
-  $interval(init, 1000);
+  $interval(init, 5000);
   
   ctl.user = UserService.getUser();
   

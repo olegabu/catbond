@@ -9,7 +9,9 @@ function InvestorContractListController($scope, $log, $interval, $uibModal,
   var ctl = this;
   
   var init = function() {
-    ctl.list = PeerService.getInvestorContracts();    
+    PeerService.getInvestorContracts().then(function(list) {
+      ctl.list = list;
+    });
   };
   
   $scope.$on('$viewContentLoaded', init);

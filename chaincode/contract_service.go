@@ -135,6 +135,7 @@ func (t *BondChaincode) changeContractOwner(stub *shim.ChaincodeStub, issuerId s
 	}
 
 	contract_.OwnerId = newOwner
+	contract_.State = "active"
 	return stub.ReplaceRow("Contracts", shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}},

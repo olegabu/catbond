@@ -20,13 +20,18 @@ function PeerService($log, $q, $http, cfg, UserService) {
       'id': 0
   };
 
+
+  PeerService.buy = function(tradeId) {
+    return invoke('buy', [tradeId, UserService.getUser().id]);
+  };
+
   PeerService.getOffers = function() {
-    return query('getOfferContracts', []);
+    return query('getOfferTrades', []);
   };
 
 
   PeerService.getIssuerContracts = function() {
-    return query('getIssuerContracts', [UserService.getUser().id]);
+    return query('getOwnerContracts', [UserService.getUser().id]);
   };
 
   PeerService.getInvestorContracts = function() {
