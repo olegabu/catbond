@@ -15,30 +15,41 @@ import (
 //},
 
 type trade struct {
-	State 		string `json:"state"`
-	ContractId 	string `json:"contractId"`
 	Id 		uint64 `json:"id"`
+	ContractId 	string `json:"contractId"`
 	SellerId 	string `json:"sellerId"`
 	Price 		uint64 `json:"price"`
+	State 		string `json:"state"`
 }
 
 func (trade_ *trade) readFromRow(row shim.Row) {
 	log.Debugf("readFromRow: %+v", row)
-	trade_.State 		= row.Columns[0].GetString_()
+	trade_.Id 		= row.Columns[0].GetUint64()
 	trade_.ContractId 	= row.Columns[1].GetString_()
-	trade_.Id 		= row.Columns[2].GetUint64()
-	trade_.SellerId 	= row.Columns[3].GetString_()
-	trade_.Price 		= row.Columns[4].GetUint64()
+	trade_.SellerId 	= row.Columns[2].GetString_()
+	trade_.Price 		= row.Columns[3].GetUint64()
+	trade_.State 		= row.Columns[4].GetString_()
+}
+
+func (trade_ *trade) toRow() (shim.Row) {
+	return shim.Row{
+		Columns: []*shim.Column{
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Id}},
+			&shim.Column{Value: &shim.Column_String_{String_: trade_.ContractId}},
+			&shim.Column{Value: &shim.Column_String_{String_: trade_.SellerId}},
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Price}},
+			&shim.Column{Value: &shim.Column_String_{String_: trade_.State}}},
+	}
 }
 
 func (t *BondChaincode) initTrades(stub *shim.ChaincodeStub) (error) {
 	// Create trades table
 	err := stub.CreateTable("Trades", []*shim.ColumnDefinition{
-		&shim.ColumnDefinition{Name: "State", Type: shim.ColumnDefinition_STRING, Key: true},
-		&shim.ColumnDefinition{Name: "ContractId", Type: shim.ColumnDefinition_STRING, Key: true},
 		&shim.ColumnDefinition{Name: "ID", Type: shim.ColumnDefinition_UINT64, Key: true},
+		&shim.ColumnDefinition{Name: "ContractId", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "SellerId", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "Price", Type: shim.ColumnDefinition_UINT64, Key: false},
+		&shim.ColumnDefinition{Name: "State", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
 	if err != nil {
 		log.Criticalf("Cannot initialize Trades")
@@ -68,14 +79,7 @@ func (t *BondChaincode) createTradeForContract(stub *shim.ChaincodeStub, contrac
 	trade_.SellerId = contract_.OwnerId
 	trade_.Price = price
 
-	if ok, err := stub.InsertRow("Trades", shim.Row{
-		Columns: []*shim.Column{
-			&shim.Column{Value: &shim.Column_String_{String_: trade_.State}},
-			&shim.Column{Value: &shim.Column_String_{String_: trade_.ContractId}},
-			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Id}},
-			&shim.Column{Value: &shim.Column_String_{String_: trade_.SellerId}},
-			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Price}}},
-	}); !ok {
+	if ok, err := stub.InsertRow("Trades", trade_.toRow()); !ok {
 		log.Error("Failed inserting new trade: " + err.Error())
 		return nil, err
 	}
@@ -96,10 +100,8 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string, newOwne
 
 	// Delete old trade entry with "offer" state
 	var columns []shim.Column
-	stateOfferColumn := shim.Column{Value: &shim.Column_String_{String_: "offer"}}
-	columns = append(columns, stateOfferColumn)
-	ContractIdColumn := shim.Column{Value: &shim.Column_String_{String_: contractId}}
-	columns = append(columns, ContractIdColumn)
+	idColumn := shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Id}}
+	columns = append(columns, idColumn)
 	if err := stub.DeleteRow("Trades", columns); err != nil {
 		message := "Failed retrieving trades. Error: " + err.Error()
 		log.Error(message)
@@ -125,14 +127,7 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string, newOwne
 
 	// Create new trade entry with "settled" state
 	trade_.State = "settled"
-	if ok, err := stub.InsertRow("Trades", shim.Row{
-		Columns: []*shim.Column{
-			&shim.Column{Value: &shim.Column_String_{String_: trade_.State}},
-			&shim.Column{Value: &shim.Column_String_{String_: trade_.ContractId}},
-			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Id}},
-			&shim.Column{Value: &shim.Column_String_{String_: trade_.SellerId}},
-			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Price}}},
-	}); !ok {
+	if ok, err := stub.ReplaceRow("Trades", trade_.toRow()); !ok {
 		log.Error("Failed inserting new trade: " + err.Error())
 		return nil, err
 	}
@@ -141,11 +136,7 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string, newOwne
 }
 
 func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade, err error) {
-	var columns []shim.Column
-	stateOffer := shim.Column{Value: &shim.Column_String_{String_: "offer"}}
-	columns = append(columns, stateOffer)
-
-	rows, err := stub.GetRows("Trades", columns)
+	rows, err := stub.GetRows("Trades", []shim.Column{})
 	if err != nil {
 		message := "Failed retrieving trades. Error: " + err.Error()
 		log.Error(message)
@@ -155,7 +146,9 @@ func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade
 	for row := range rows {
 		var result trade
 		result.readFromRow(row)
-
+		if result.State != "offer" {
+			continue
+		}
 		log.Debugf("getOfferTrades result includes: %+v", result)
 		trades = append(trades, result)
 	}
@@ -164,21 +157,20 @@ func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade
 }
 
 func (t *BondChaincode) getOfferTradeForContract(stub *shim.ChaincodeStub, contractId string) (trade, error) {
-	var columns []shim.Column
-	stateOfferColumn := shim.Column{Value: &shim.Column_String_{String_: "offer"}}
-	columns = append(columns, stateOfferColumn)
-	ContractIdColumn := shim.Column{Value: &shim.Column_String_{String_: contractId}}
-	columns = append(columns, ContractIdColumn)
-
-	row, err := stub.GetRow("Trades", columns)
+	rows, err := stub.GetRows("Trades", []shim.Column{})
 	if err != nil {
-		message := "Failed retrieving trade. Error: " + err.Error()
+		message := "Failed retrieving trades. Error: " + err.Error()
 		log.Error(message)
 		return trade{}, errors.New(message)
 	}
 
-	var result trade
-	result.readFromRow(row)
-	log.Debugf("getOfferTradeForContract result is: %+v", result)
-	return result, nil
+	for row := range rows {
+		var result trade
+		result.readFromRow(row)
+		if result.State == "offer" && result.ContractId == contractId {
+			log.Debugf("getOfferTradeForContract returns: %+v", result)
+			return result, nil
+		}
+	}
+	return trade{}, errors.New("No trades found for contract " + contractId)
 }
