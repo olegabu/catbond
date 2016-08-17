@@ -79,10 +79,50 @@ func (t *BondChaincode) createTradeForContract(stub *shim.ChaincodeStub, contrac
 		return nil, err
 	}
 
-	contract_.State = "offer"
-	_, err = t.changeContractState(stub, contract_)
-
+	_, err = t.changeContractState(stub, contract_.IssuerId, contract_.Id, "offer")
 	return nil, err
+}
+
+func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string) ([]byte, error) {
+	log.Debugf("function: %s, args: %s", "buy", contractId)
+	// TODO get buyer id
+	var newOwnerId string = "newOwnerId"
+
+	trade_, err := t.getOfferTradeForContract(stub, contractId)
+	if err != nil {
+		message := "Failed buying trade. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	// Delete old trade entry with "offer" state
+	var columns []shim.Column
+	stateOfferColumn := shim.Column{Value: &shim.Column_String_{String_: "offer"}}
+	columns = append(columns, stateOfferColumn)
+	ContractIdColumn := shim.Column{Value: &shim.Column_String_{String_: contractId}}
+	columns = append(columns, ContractIdColumn)
+	if err := stub.DeleteRow("Trades", columns); err != nil {
+		message := "Failed retrieving trades. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	// Create new trade entry with "settled" state
+	trade_.State = "settled"
+	if ok, err := stub.InsertRow("Trades", shim.Row{
+		Columns: []*shim.Column{
+			&shim.Column{Value: &shim.Column_String_{String_: trade_.State}},
+			&shim.Column{Value: &shim.Column_String_{String_: trade_.ContractId}},
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Id}},
+			&shim.Column{Value: &shim.Column_String_{String_: trade_.SellerId}},
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Price}}},
+	}); !ok {
+		log.Error("Failed inserting new trade: " + err.Error())
+		return nil, err
+	}
+
+	// TODO add money transfer
+	// TODO transfer Contract ownership
 }
 
 func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade, err error) {
@@ -106,4 +146,24 @@ func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade
 	}
 
 	return trades, nil
+}
+
+func (t *BondChaincode) getOfferTradeForContract(stub *shim.ChaincodeStub, contractId string) (trade, error) {
+	var columns []shim.Column
+	stateOfferColumn := shim.Column{Value: &shim.Column_String_{String_: "offer"}}
+	columns = append(columns, stateOfferColumn)
+	ContractIdColumn := shim.Column{Value: &shim.Column_String_{String_: contractId}}
+	columns = append(columns, ContractIdColumn)
+
+	row, err := stub.GetRow("Trades", columns)
+	if err != nil {
+		message := "Failed retrieving trade. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	var result trade
+	result.readFromRow(row)
+	log.Debugf("getOfferTradeForContract result is: %+v", result)
+	return result, nil
 }

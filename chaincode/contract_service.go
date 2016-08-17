@@ -80,35 +80,59 @@ func (t *BondChaincode) createContract(stub *shim.ChaincodeStub, contract_ contr
 	return nil, nil
 }
 
-func (t *BondChaincode) changeContractState(stub *shim.ChaincodeStub, contract_ contract) (bool, error) {
-	log.Debug("Retrieving contract for changing state.")
-
+func (t *BondChaincode) getContract(stub *shim.ChaincodeStub, issuerId string, contractId string) (contract, error) {
 	var columns []shim.Column
-	col1 := shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}}
+	col1 := shim.Column{Value: &shim.Column_String_{String_: issuerId}}
 	columns = append(columns, col1)
-	col2 := shim.Column{Value: &shim.Column_String_{String_: contract_.Id}}
+	col2 := shim.Column{Value: &shim.Column_String_{String_: contractId}}
 	columns = append(columns, col2)
 
 	row, err := stub.GetRow("Contracts", columns)
 	if err != nil {
-		message := "Failed retrieving contract ID " + contract_.Id + ". Error: " + err.Error()
+		message := "Failed retrieving contract ID " + contractId + ". Error: " + err.Error()
 		log.Error(message)
-		return false, errors.New(message)
+		return nil, errors.New(message)
 	}
 
 	var result contract
 	result.readFromRow(row)
-	log.Debugf("Contract before changing state: %+v", result)
+	log.Debugf("getContract result: %+v", result)
+	return result, nil
+}
 
-	result.State = contract_.State
+func (t *BondChaincode) changeContractState(stub *shim.ChaincodeStub, issuerId string, contractId string, newState string) (bool, error) {
+	log.Debugf("changeContractState with issuerId:%s and contractId:%s to %s", issuerId, contractId, newState)
+	contract_, err := t.getContract(stub, issuerId, contractId)
+	if err != nil {
+		return false, err
+	}
 
-	return stub.ReplaceRow("Claims", shim.Row{
+	contract_.State = newState
+	return stub.ReplaceRow("Contracts", shim.Row{
 		Columns: []*shim.Column{
-			&shim.Column{Value: &shim.Column_String_{String_: result.IssuerId}},
-			&shim.Column{Value: &shim.Column_String_{String_: result.Id}},
-			&shim.Column{Value: &shim.Column_String_{String_: result.OwnerId}},
-			&shim.Column{Value: &shim.Column_Uint64{Uint64: result.CouponsPaid}},
-			&shim.Column{Value: &shim.Column_String_{String_: result.State}}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.Id}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.OwnerId}},
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: contract_.CouponsPaid}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.State}}},
+	})
+}
+
+func (t *BondChaincode) changeContractOwner(stub *shim.ChaincodeStub, issuerId string, contractId string, newOwner string) (bool, error) {
+	log.Debugf("changeContractOwner with issuerId:%s and contractId:%s to %s", issuerId, contractId, newOwner)
+	contract_, err := t.getContract(stub, issuerId, contractId)
+	if err != nil {
+		return false, err
+	}
+
+	contract_.OwnerId = newOwner
+	return stub.ReplaceRow("Contracts", shim.Row{
+		Columns: []*shim.Column{
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.Id}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.OwnerId}},
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: contract_.CouponsPaid}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.State}}},
 	})
 }
 
