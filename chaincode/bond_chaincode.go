@@ -133,18 +133,15 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 		return json.Marshal(bonds)
 
 	} else if function == "getContracts" {
-		if len(args) != 0 {
-			return nil, errors.New("Incorrect arguments. Expecting no arguments.")
+		if len(args) != 1 {
+			return nil, errors.New("Incorrect arguments. Expecting id.")
 		}
 
 		role, err := t.getCallerRole(stub)
 		if err != nil {
 			return nil, err
 		}
-		company, err := t.getCallerCompany(stub)
-		if err != nil {
-			return nil, err
-		}
+		company := args[0]
 
 		if role == "issuer" {
 			contracts, err := t.getIssuerContracts(stub, company)
