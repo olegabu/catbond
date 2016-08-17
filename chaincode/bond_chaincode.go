@@ -95,6 +95,18 @@ func (t *BondChaincode) Invoke(stub *shim.ChaincodeStub, function string, args [
 		
 		return t.buy(stub, tradeId, args[1])
 
+	} else if function == "sell" {
+		if len(args) != 2 {
+			return nil, errors.New("Incorrect arguments. Expecting contractId, price.")
+		}
+
+		price, err := strconv.ParseUint(args[1], 10, 64)
+		if err != nil {
+			return nil, errors.New("Incorrect price. Uint64 expected.")
+		}
+
+		return t.sell(stub, args[0], price)
+
 	}else {
 		log.Errorf("function: %s, args: %s", function, args)
 		return nil, errors.New("Received unknown function invocation")
