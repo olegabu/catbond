@@ -23,6 +23,7 @@ type trade struct {
 }
 
 func (trade_ *trade) readFromRow(row shim.Row) {
+	log.Debugf("readFromRow: %+v", row)
 	trade_.State 		= row.Columns[0].GetString_()
 	trade_.ContractId 	= row.Columns[1].GetString_()
 	trade_.Id 		= row.Columns[2].GetUint64()
