@@ -15,27 +15,32 @@ function PeerService($log, $q, $http, cfg, UserService) {
         'chaincodeID': {
           name: cfg.chaincodeID
         },
-        'ctorMsg': {}
+        'ctorMsg': {},
+        "attributes": ["role"]
       },
       'id': 0
   };
 
 
   PeerService.buy = function(tradeId) {
-    return invoke('buy', [tradeId, UserService.getUser().id]);
+    return invoke('buy', ['' + tradeId, UserService.getUser().id]);
+  };
+
+  PeerService.sell = function(contractId, price) {
+    return invoke('sell', [ contractId, '' + price])
   };
 
   PeerService.getOffers = function() {
-    return query('getOfferTrades', []);
+    return query('getTrades', []);
   };
 
 
   PeerService.getIssuerContracts = function() {
-    return query('getOwnerContracts', [UserService.getUser().id]);
+    return query('getContracts', [UserService.getUser().id]);
   };
 
   PeerService.getInvestorContracts = function() {
-    return query('getOwnerContracts', [UserService.getUser().id]);
+    return query('getContracts', [UserService.getUser().id]);
   };
 
   PeerService.getBonds = function() {

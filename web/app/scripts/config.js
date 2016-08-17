@@ -3,7 +3,7 @@ angular.module('config', [])
     {
   endpoint: 'http://localhost:5000/chaincode',
   secureContext: 'user_type1_deadbeef',
-  chaincodeID: 'b51463b2f86bf5a62397a2fce17ade61d6c065c4af43b84f4152066cc972a8093aa38b586b914ebee04a7b0885894e5ead61a9ed85150a215aaf0ae492126a91',
+  chaincodeID: '1a34d528ad4ef749a9fad54d977226901d4c8f8d80e2729bb1b42e605ab129b1396e88b395a7f9c77496202cf183a5943c143fe0fed5106a8b03b7eefd1d58e0',
   users: [{id: 'issuer0', role: 'issuer'},
           {id: 'issuer1', role: 'issuer'},
           {id: 'investor0', role: 'investor'},

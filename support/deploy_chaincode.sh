@@ -43,10 +43,12 @@ peer network login issuer1 -p W8G0usrU7jRk
 peer network login issuer0 -p H80SiB5ODKKQ
 
 echo "Deploying chaincode..."
-OUTPUT="$(peer chaincode deploy -p github.com/olegabu/catbond/chaincode -c '{"Function":"init", "Args": []}' -u auditor0)"
+
+OUTPUT="$(curl -XPOST -d @./commands/deployLocal.json http://localhost:5000/chaincode)"
+#"$(peer chaincode deploy -p github.com/olegabu/catbond/chaincode -c '{"Function":"init", "Args": []}' -u auditor0)"
 echo "   - Deployed: ${OUTPUT}"
 echo "${OUTPUT}" > ./commands/HASH.txt
 
-sed "s/chaincodeID:.*/chaincodeID: '${OUTPUT}',/g" ../web/app/scripts/config.js > tmp.js
-mv tmp.js ../web/app/scripts/config.js
+#sed "s/chaincodeID:.*/chaincodeID: '${OUTPUT}',/g" ../web/app/scripts/config.js > tmp.js
+#mv tmp.js ../web/app/scripts/config.js
 
