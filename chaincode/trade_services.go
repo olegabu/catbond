@@ -145,6 +145,24 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, tradeId uint64, newOwnerId
 	return nil, nil
 }
 
+func (t *BondChaincode) getAllTrades(stub *shim.ChaincodeStub) (trades []trade, err error) {
+	rows, err := stub.GetRows("Trades", []shim.Column{})
+	if err != nil {
+		message := "Failed retrieving trades. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	for row := range rows {
+		var result trade
+		result.readFromRow(row)
+		log.Debugf("getOfferTrades result includes: %+v", result)
+		trades = append(trades, result)
+	}
+
+	return trades, nil
+}
+
 func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade, err error) {
 	rows, err := stub.GetRows("Trades", []shim.Column{})
 	if err != nil {

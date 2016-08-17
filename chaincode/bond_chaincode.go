@@ -196,17 +196,31 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 
 		return json.Marshal(contracts)
 */
-	} else if function == "getOfferTrades" {
+	} else if function == "getTrades" {
 		if len(args) != 0 {
 			return nil, errors.New("Incorrect arguments. Expecting no arguments.")
 		}
 
-		trades, err := t.getOfferTrades(stub)
+		role, err := t.getCallerRole(stub)
 		if err != nil {
 			return nil, err
 		}
 
-		return json.Marshal(trades)
+		if role == "auditor" {
+			trades, err := t.getAllTrades(stub)
+			if err != nil {
+				return nil, err
+			}
+
+			return json.Marshal(trades)
+		} else {
+			trades, err := t.getOfferTrades(stub)
+			if err != nil {
+				return nil, err
+			}
+
+			return json.Marshal(trades)
+		}
 
 	} else {
 		log.Errorf("function: %s, args: %s", function, args)
