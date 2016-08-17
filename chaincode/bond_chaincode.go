@@ -132,6 +132,44 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 
 		return json.Marshal(bonds)
 
+	} else if function == "getContracts" {
+		if len(args) != 0 {
+			return nil, errors.New("Incorrect arguments. Expecting no arguments.")
+		}
+
+		role, err := t.getCallerRole(stub)
+		if err != nil {
+			return nil, err
+		}
+		company, err := t.getCallerCompany(stub)
+		if err != nil {
+			return nil, err
+		}
+
+		if role == "issuer" {
+			contracts, err := t.getIssuerContracts(stub, company)
+			if err != nil {
+				return nil, err
+			}
+			return json.Marshal(contracts)
+
+		} else if role == "investor" {
+			contracts, err := t.getOwnerContracts(stub, company)
+			if err != nil {
+				return nil, err
+			}
+			return json.Marshal(contracts)
+
+		} else if role == "auditor" {
+			contracts, err := t.getAllContracts(stub)
+			if err != nil {
+				return nil, err
+			}
+			return json.Marshal(contracts)
+		} else {
+			return nil, errors.New("Incorrect caller role. Expecting investor, issuer or auditor.")
+		}
+/*
 	} else if function == "getIssuerContracts" {
 		if len(args) != 1 {
 			return nil, errors.New("Incorrect arguments. Expecting issuerId.")
@@ -157,7 +195,7 @@ func (t *BondChaincode) Query(stub *shim.ChaincodeStub, function string, args []
 		}
 
 		return json.Marshal(contracts)
-
+*/
 	} else if function == "getOfferTrades" {
 		if len(args) != 0 {
 			return nil, errors.New("Incorrect arguments. Expecting no arguments.")
@@ -189,6 +227,26 @@ func (t *BondChaincode) incrementAndGetCounter(stub *shim.ChaincodeStub, counter
 		return result, err
 	}
 	return result, err
+}
+
+func (t *BondChaincode) getCallerCompany(stub *shim.ChaincodeStub) (string, error) {
+	callerCompany, err := stub.ReadCertAttribute("company")
+	if err != nil {
+		log.Error("Failed fetching caller's company. Error: " + err.Error())
+		return "", err
+	}
+	log.Debugf("Caller company is: %s", callerCompany)
+	return string(callerCompany), nil
+}
+
+func (t *BondChaincode) getCallerRole(stub *shim.ChaincodeStub) (string, error) {
+	callerRole, err := stub.ReadCertAttribute("role")
+	if err != nil {
+		log.Error("Failed fetching caller role. Error: " + err.Error())
+		return "", err
+	}
+	log.Debugf("Caller role is: %s", callerRole)
+	return string(callerRole), nil
 }
 
 func main() {

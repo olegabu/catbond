@@ -192,3 +192,22 @@ func (t *BondChaincode) getOwnerContracts(stub *shim.ChaincodeStub, ownerId stri
 
 	return contracts, nil
 }
+
+func (t *BondChaincode) getAllContracts(stub *shim.ChaincodeStub) (contracts []contract, err error) {
+	rows, err := stub.GetRows("Contracts", []shim.Column{})
+	if err != nil {
+		message := "Failed retrieving contracts. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	for row := range rows {
+		var result contract
+		result.readFromRow(row)
+
+		log.Debugf("getIssuerContracts result includes: %+v", result)
+		contracts = append(contracts, result)
+	}
+
+	return contracts, nil
+}
