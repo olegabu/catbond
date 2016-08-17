@@ -98,16 +98,6 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string, newOwne
 		return nil, errors.New(message)
 	}
 
-	// Delete old trade entry with "offer" state
-	var columns []shim.Column
-	idColumn := shim.Column{Value: &shim.Column_Uint64{Uint64: trade_.Id}}
-	columns = append(columns, idColumn)
-	if err := stub.DeleteRow("Trades", columns); err != nil {
-		message := "Failed retrieving trades. Error: " + err.Error()
-		log.Error(message)
-		return nil, errors.New(message)
-	}
-
 	// Get Contract
 	contract_, err := t.getContractById(stub, contractId)
 	if err != nil {
