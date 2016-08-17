@@ -85,10 +85,15 @@ func (t *BondChaincode) Invoke(stub *shim.ChaincodeStub, function string, args [
 
 	} else if function == "buy" {
 		if len(args) != 2 {
-			return nil, errors.New("Incorrect arguments. Expecting contractId, ownerId.")
+			return nil, errors.New("Incorrect arguments. Expecting tradeId, ownerId.")
+		}
+
+		tradeId, err := strconv.ParseUint(args[0], 10, 64)
+		if err != nil {
+			return nil, errors.New("Incorrect tradeId. Uint64 expected.")
 		}
 		
-		return t.buy(stub, args[0], args[1])
+		return t.buy(stub, tradeId, args[1])
 
 	}else {
 		log.Errorf("function: %s, args: %s", function, args)

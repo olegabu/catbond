@@ -88,10 +88,30 @@ func (t *BondChaincode) createTradeForContract(stub *shim.ChaincodeStub, contrac
 	return nil, err
 }
 
-func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string, newOwnerId string) ([]byte, error) {
-	log.Debugf("function: %s, args: %s", "buy", contractId)
+func (t *BondChaincode) sell(stub *shim.ChaincodeStub, contractId string, price uint64) ([]byte, error) {
+	log.Debugf("function: %s, args: %s", "sell", contractId)
 
-	trade_, err := t.getOfferTradeForContract(stub, contractId)
+	// Get Contract
+	contract_, err := t.getContractById(stub, contractId)
+	if err != nil {
+		message := "Failed retrieving contract. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	if _, err := t.createTradeForContract(stub, contract_, price); err != nil {
+		message := "createTradeForContract failed. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	return nil, nil
+}
+
+func (t *BondChaincode) buy(stub *shim.ChaincodeStub, tradeId uint64, newOwnerId string) ([]byte, error) {
+	log.Debugf("function: %s, args: %s", "buy", tradeId)
+
+	trade_, err := t.getOfferTrade(stub, tradeId)
 	if err != nil {
 		message := "Failed buying trade. Error: " + err.Error()
 		log.Error(message)
@@ -99,7 +119,7 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string, newOwne
 	}
 
 	// Get Contract
-	contract_, err := t.getContractById(stub, contractId)
+	contract_, err := t.getContractById(stub, trade_.ContractId)
 	if err != nil {
 		message := "Failed retrieving contract. Error: " + err.Error()
 		log.Error(message)
@@ -144,6 +164,25 @@ func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade
 	}
 
 	return trades, nil
+}
+
+func (t *BondChaincode) getOfferTrade(stub *shim.ChaincodeStub, tradeId uint64) (trade, error) {
+	rows, err := stub.GetRows("Trades", []shim.Column{})
+	if err != nil {
+		message := "Failed retrieving trades. Error: " + err.Error()
+		log.Error(message)
+		return trade{}, errors.New(message)
+	}
+
+	for row := range rows {
+		var result trade
+		result.readFromRow(row)
+		if result.State == "offer" && result.Id == tradeId {
+			log.Debugf("getOfferTradeForContract returns: %+v", result)
+			return result, nil
+		}
+	}
+	return trade{}, errors.New("No trades found for id " + strconv.FormatUint(tradeId, 10))
 }
 
 func (t *BondChaincode) getOfferTradeForContract(stub *shim.ChaincodeStub, contractId string) (trade, error) {
