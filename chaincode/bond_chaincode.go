@@ -83,24 +83,12 @@ func (t *BondChaincode) Invoke(stub *shim.ChaincodeStub, function string, args [
 		}
 		return t.createContractsForBond(stub, newBond, 5)
 
-	} else if function == "createPolicy" {
-		if len(args) != 3 {
-			return nil, errors.New("Incorrect arguments. Expecting contract ID, coverage and premium.")
+	} else if function == "buy" {
+		if len(args) != 2 {
+			return nil, errors.New("Incorrect arguments. Expecting contractId, ownerId.")
 		}
-
-		//coverage, err := strconv.ParseUint(args[1], 10, 64)
-		//if err != nil {
-		//	return nil, errors.New("Incorrect coverage. Uint64 expected.")
-		//}
-		//
-		//premium, err := strconv.ParseUint(args[2], 10, 64)
-		//if err != nil {
-		//	return nil, errors.New("Incorrect premium. Uint64 expected.")
-		//}
-
-		//_, err = t.createPolicy(stub, args[0], coverage, premium)
-		//return nil, err
-		return nil, nil
+		
+		return t.buy(stub, args[0], args[1])
 
 	}else {
 		log.Errorf("function: %s, args: %s", function, args)

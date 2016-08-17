@@ -4,6 +4,7 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"errors"
 	"strconv"
+	"strings"
 )
 
 type contract struct {
@@ -98,6 +99,14 @@ func (t *BondChaincode) getContract(stub *shim.ChaincodeStub, issuerId string, c
 	result.readFromRow(row)
 	log.Debugf("getContract result: %+v", result)
 	return result, nil
+}
+
+func (t *BondChaincode) getContractById(stub *shim.ChaincodeStub, contractId string) (contract, error) {
+	// TODO: check this method
+	bondId := strings.Split(contractId, ".")[0]
+	issuerId := strings.Split(bondId, ".")[0]
+	log.Debugf("getContractById with contractId:%s, bondId:%s, issuerId:%s", contractId, bondId, issuerId)
+	return t.getContract(stub, issuerId, contractId)
 }
 
 func (t *BondChaincode) changeContractState(stub *shim.ChaincodeStub, issuerId string, contractId string, newState string) (bool, error) {

@@ -83,10 +83,8 @@ func (t *BondChaincode) createTradeForContract(stub *shim.ChaincodeStub, contrac
 	return nil, err
 }
 
-func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string) ([]byte, error) {
+func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string, newOwnerId string) ([]byte, error) {
 	log.Debugf("function: %s, args: %s", "buy", contractId)
-	// TODO get buyer id
-	// var newOwnerId string = "newOwnerId"
 
 	trade_, err := t.getOfferTradeForContract(stub, contractId)
 	if err != nil {
@@ -107,6 +105,23 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string) ([]byte
 		return nil, errors.New(message)
 	}
 
+	// Get Contract
+	contract_, err := t.getContractById(stub, contractId)
+	if err != nil {
+		message := "Failed retrieving contract. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	// Transfer Contract ownership
+	if _, err := t.changeContractOwner(stub, contract_.IssuerId, contract_.Id, newOwnerId); err != nil {
+		message := "Failed transfering contract ownership. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	// TODO add money transfer
+
 	// Create new trade entry with "settled" state
 	trade_.State = "settled"
 	if ok, err := stub.InsertRow("Trades", shim.Row{
@@ -121,8 +136,6 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, contractId string) ([]byte
 		return nil, err
 	}
 
-	// TODO add money transfer
-	// TODO transfer Contract ownership
 	return nil, nil
 }
 
