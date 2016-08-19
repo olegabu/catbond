@@ -107,7 +107,14 @@ func (t *BondChaincode) Invoke(stub *shim.ChaincodeStub, function string, args [
 
 		return t.sell(stub, args[0], price)
 
-	}else {
+	} else if function == "couponsPaid" {
+		if len(args) != 1 {
+			return nil, errors.New("Incorrect arguments. Expecting issuerId, bondId.")
+		}
+		// TODO: add role check
+		return t.couponsPaid(stub, args[0], args[0])
+
+	} else {
 		log.Errorf("function: %s, args: %s", function, args)
 		return nil, errors.New("Received unknown function invocation")
 	}

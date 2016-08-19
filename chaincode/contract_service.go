@@ -146,6 +146,20 @@ func (t *BondChaincode) changeContractOwner(stub *shim.ChaincodeStub, issuerId s
 	})
 }
 
+func (t *BondChaincode) payContractCoupon(stub *shim.ChaincodeStub, contract_ contract) (bool, error) {
+	log.Debugf("payContractCoupon for: %+v", contract_)
+
+	contract_.CouponsPaid++
+	return stub.ReplaceRow("Contracts", shim.Row{
+		Columns: []*shim.Column{
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.Id}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.OwnerId}},
+			&shim.Column{Value: &shim.Column_Uint64{Uint64: contract_.CouponsPaid}},
+			&shim.Column{Value: &shim.Column_String_{String_: contract_.State}}},
+	})
+}
+
 func (t *BondChaincode) getIssuerContracts(stub *shim.ChaincodeStub, issuerId string) (contracts []contract, err error) {
 	var columns []shim.Column
 	if issuerId != "" {

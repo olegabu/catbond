@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"errors"
+	"strings"
 )
 
 //issuerId: 'issuer0',
@@ -98,6 +99,34 @@ func (t *BondChaincode) createBond(stub *shim.ChaincodeStub, bond_ bond) ([]byte
 		log.Error("Failed inserting new bond: " + err.Error())
 		return nil, err
 	}
+
+	return nil, nil
+}
+
+func (t *BondChaincode) couponsPaid(stub *shim.ChaincodeStub, issuerId string, bondId string) ([]byte, error) {
+	log.Debugf("couponsPaid called with issuerId:%s, bondId:%s", issuerId, bondId)
+
+	// Get all contracts issued by issuerId
+	contracts, err := t.getIssuerContracts(stub, issuerId)
+	if err != nil {
+		log.Error("couponsPaid failed on retrieving contracts: " + err.Error())
+		return nil, err
+	}
+
+	// Iterate over the contracts and increment those that match bondId
+	matchCounter := 0
+	for _, contract_ := range contracts {
+		// "issuer0.2017.6.13.600" expected after trimming a suffix from "issuer0.2017.6.13.600.42"
+		if bondId == contract_.Id[:strings.LastIndex(contract_.Id, ".")] {
+			matchCounter++
+			if _, err := t.payContractCoupon(stub, contract_); err != nil {
+				log.Errorf("couponsPaid failed on paying coupon for %s: %s", contract_.Id, err.Error())
+				return nil, err
+			}
+		}
+	}
+	log.Debugf("couponsPaid: %d out of %d issued by %s matched %s and were paid",
+		   matchCounter, len(contracts), issuerId, bondId)
 
 	return nil, nil
 }
