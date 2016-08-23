@@ -41,14 +41,18 @@ peer network login investor1 -p b7pmSxzKNFiw
 peer network login investor0 -p YsWZD4qQmYxo
 peer network login issuer1 -p W8G0usrU7jRk
 peer network login issuer0 -p H80SiB5ODKKQ
+peer network login offlineServices -p H80SiB5ODKKQ
 
 echo "Deploying chaincode..."
 
-OUTPUT="$(curl -XPOST -d @./commands/deployLocal.json http://localhost:5000/chaincode)"
-#"$(peer chaincode deploy -p github.com/olegabu/catbond/chaincode -c '{"Function":"init", "Args": []}' -u auditor0)"
+#OUTPUT="$(peer chaincode deploy -p github.com/olegabu/catbond/chaincode -c '{"Args": ["aW5pdA=="]}' -u auditor0)"
+OUTPUT="$(curl -XPOST -d  '{"jsonrpc": "2.0", "method": "deploy",  "params": {"type": 1,"chaincodeID": {"path": "github.com/olegabu/catbond/chaincode","language": "GOLANG"}, "ctorMsg": { "args": ["aW5pdA=="] },"secureContext": "auditor0", "attributes": ["role"]},"id": 0}' http://localhost:7050/chaincode)"
+#sudo apt-get install jq
+OUTPUT="$(echo $OUTPUT | jq '.result.message')"
+
 echo "   - Deployed: ${OUTPUT}"
 echo "${OUTPUT}" > ./commands/HASH.txt
 
-#sed "s/chaincodeID:.*/chaincodeID: '${OUTPUT}',/g" ../web/app/scripts/config.js > tmp.js
-#mv tmp.js ../web/app/scripts/config.js
+sed "s/chaincodeID:.*/chaincodeID: ${OUTPUT},/g" ../web/app/scripts/config.js > tmp.js
+mv tmp.js ../web/app/scripts/config.js
 

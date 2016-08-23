@@ -3,7 +3,7 @@
  * @classdesc
  * @ngInject
  */
-function IssuerContractListController($scope, $log, $interval, PeerService) {
+function IssuerContractListController($scope, $log, $interval, PeerService, $rootScope) {
 
   var ctl = this;
   
@@ -16,7 +16,10 @@ function IssuerContractListController($scope, $log, $interval, PeerService) {
   
   $scope.$on('$viewContentLoaded', init);
   
-  $interval(init, 1000);
+  if($rootScope._timer){
+    $interval.cancel($rootScope._timer);
+  }
+  $rootScope._timer = $interval(init, 2000);
 
 }
 

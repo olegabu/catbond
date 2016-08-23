@@ -28,7 +28,7 @@ type bond struct {
 }
 
 
-func (t *BondChaincode) initBonds(stub *shim.ChaincodeStub) (error) {
+func (t *BondChaincode) initBonds(stub shim.ChaincodeStubInterface) (error) {
 	// Create bonds table
 	err := stub.CreateTable("Bonds", []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "IssuerId", Type: shim.ColumnDefinition_STRING, Key: true},
@@ -48,7 +48,7 @@ func (t *BondChaincode) initBonds(stub *shim.ChaincodeStub) (error) {
 	return nil
 }
 
-func (t *BondChaincode) getBonds(stub *shim.ChaincodeStub, issuerID string) ([]bond, error) {
+func (t *BondChaincode) getBonds(stub shim.ChaincodeStubInterface, issuerID string) ([]bond, error) {
 	var columns []shim.Column
 	if issuerID != "" {
 		columnIssuerIDs := shim.Column{Value: &shim.Column_String_{String_: issuerID}}
@@ -82,7 +82,7 @@ func (t *BondChaincode) getBonds(stub *shim.ChaincodeStub, issuerID string) ([]b
 	return bonds, nil
 }
 
-func (t *BondChaincode) createBond(stub *shim.ChaincodeStub, bond_ bond) ([]byte, error) {
+func (t *BondChaincode) createBond(stub shim.ChaincodeStubInterface, bond_ bond) ([]byte, error) {
 	//TODO Verify if bond with such id is created already
 
 	if ok, err := stub.InsertRow("Bonds", shim.Row{
@@ -103,7 +103,7 @@ func (t *BondChaincode) createBond(stub *shim.ChaincodeStub, bond_ bond) ([]byte
 	return nil, nil
 }
 
-func (t *BondChaincode) couponsPaid(stub *shim.ChaincodeStub, issuerId string, bondId string) ([]byte, error) {
+func (t *BondChaincode) couponsPaid(stub shim.ChaincodeStubInterface, issuerId string, bondId string) ([]byte, error) {
 	log.Debugf("couponsPaid called with issuerId:%s, bondId:%s", issuerId, bondId)
 
 	// Get all contracts issued by issuerId
@@ -117,7 +117,7 @@ func (t *BondChaincode) couponsPaid(stub *shim.ChaincodeStub, issuerId string, b
 	matchCounter := 0
 	for _, contract_ := range contracts {
 		// "issuer0.2017.6.13.600" expected after trimming a suffix from "issuer0.2017.6.13.600.42"
-		if bondId == contract_.Id[:strings.LastIndex(contract_.Id, ".")] {
+		if bondId == contract_.Id[:strings.LastIndex(contract_.Id, ".")] && contract_.State=="active"  {
 			matchCounter++
 			if _, err := t.payContractCoupon(stub, contract_); err != nil {
 				log.Errorf("couponsPaid failed on paying coupon for %s: %s", contract_.Id, err.Error())

@@ -8,12 +8,13 @@ angular.module('app', ['ui.router',
                        'issuerContractListController',
                        'investorContractListController',
                        'marketController',
+                       'offlineController',
                        'config'])
-                       
+
 .config(function($stateProvider, $urlRouterProvider) {
-  
+
   $urlRouterProvider.otherwise('/');
-  
+
   $stateProvider
   .state('demo', {
     url: '/',
@@ -40,5 +41,10 @@ angular.module('app', ['ui.router',
     templateUrl: 'partials/market.html',
     controller: 'MarketController as ctl'
   })
+  .state('demo.offline', {
+    url: 'offline',
+    templateUrl: 'partials/offline.html',
+    controller: 'OfflineController as ctl'
+  });
 
 });

@@ -11,7 +11,7 @@
       "args": []
     },
     "secureContext": "auditor0",
-    "attributes": ["role", "company"]
+    "attributes": ["role"]
   },
   "id": 0
 }

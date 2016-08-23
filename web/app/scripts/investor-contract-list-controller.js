@@ -3,7 +3,7 @@
  * @classdesc
  * @ngInject
  */
-function InvestorContractListController($scope, $log, $interval, $uibModal, 
+function InvestorContractListController($scope, $log, $interval, $uibModal, $rootScope,
     PeerService) {
 
   var ctl = this;
@@ -16,7 +16,10 @@ function InvestorContractListController($scope, $log, $interval, $uibModal,
   
   $scope.$on('$viewContentLoaded', init);
   
-  $interval(init, 1000);
+  if($rootScope._timer){
+    $interval.cancel($rootScope._timer);
+  }
+  $rootScope._timer = $interval(init, 2000);
   
   ctl.open = function(contract) {
     var modalInstance = $uibModal.open({

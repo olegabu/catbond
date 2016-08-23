@@ -9,20 +9,20 @@ Please read the [functional spec document](docs/catbond.md).
 # Changes to membersrvc.yaml 
 Add 5 more users
 
-    auditor0: 1 yg5DVhm0er1z auditor        00011
-    investor1: 1 b7pmSxzKNFiw investor        00012
-    investor0: 1 YsWZD4qQmYxo investor 00013
-    issuer1: 1 W8G0usrU7jRk issuer        00014
-    issuer0: 1 H80SiB5ODKKQ issuer 00015
+    auditor0: 1 yg5DVhm0er1z bank_a        00011
+    investor1: 1 b7pmSxzKNFiw bank_a        00012
+    investor0: 1 YsWZD4qQmYxo bank_a 00013
+    issuer1: 1 W8G0usrU7jRk bank_a        00014
+    issuer0: 1 H80SiB5ODKKQ bank_a 00015
 
 
 And add correct atributes to the aca.attributes section
 
-    attribute-entry-2: auditor0;auditor;role;auditor;2015-07-13T00:00:00-03:00;;
-    attribute-entry-3: investor1;investor;role;investor;2001-02-02T00:00:00-03:00;;
-    attribute-entry-4: investor0;investor;role;investor;2001-02-02T00:00:00-03:00;;
-    attribute-entry-5: issuer1;issuer;role;issuer;2015-01-01T00:00:00-03:00;;
-    attribute-entry-6: issuer0;issuer;role;issuer;2015-01-01T00:00:00-03:00;;
+    attribute-entry-2: auditor0;bank_a;role;auditor;2015-07-13T00:00:00-03:00;;
+    attribute-entry-3: investor1;bank_a;role;investor;2001-02-02T00:00:00-03:00;;
+    attribute-entry-4: investor0;bank_a;role;investor;2001-02-02T00:00:00-03:00;;
+    attribute-entry-5: issuer1;bank_a;role;issuer;2015-01-01T00:00:00-03:00;;
+    attribute-entry-6: issuer0;bank_a;role;issuer;2015-01-01T00:00:00-03:00;;
 
 run `support/deploy_chaincode.sh` to run membersrvc and one peer
 

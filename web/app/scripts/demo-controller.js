@@ -27,11 +27,16 @@ function DemoController($log, $state,
   ctl.setUser = function() {
     UserService.setUser(ctl.user);
 
-    if(ctl.user.role === 'issuer') {
-      $state.go('demo.issuerContractList');
-    }
-    else if(ctl.user.role === 'investor') {
-      $state.go('demo.investorContractList');
+    switch(ctl.user.role){
+        case 'issuer':
+            $state.go('demo.issuerContractList');
+            break;
+        case 'investor':
+            $state.go('demo.investorContractList');
+            break;
+        case 'bank':
+            $state.go('demo.offline');
+            break;
     }
   };
 

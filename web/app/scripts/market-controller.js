@@ -3,7 +3,7 @@
  * @classdesc
  * @ngInject
  */
-function MarketController($scope, $log, $interval, $uibModal, 
+function MarketController($scope, $log, $interval, $uibModal, $rootScope,
     UserService, PeerService) {
 
   var ctl = this;
@@ -15,8 +15,11 @@ function MarketController($scope, $log, $interval, $uibModal,
   };
   
   $scope.$on('$viewContentLoaded', init);
-  
-  $interval(init, 5000);
+
+  if($rootScope._timer){
+    $interval.cancel($rootScope._timer);
+  }
+  $rootScope._timer = $interval(init, 2000);
   
   ctl.user = UserService.getUser();
   

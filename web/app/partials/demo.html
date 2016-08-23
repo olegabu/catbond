@@ -5,7 +5,7 @@
     </div><!-- /column -->
     <div class="col-md-3">
       <div class="panel panel-default">
-        <div class="panel-heading"><i class="fa fa-bars"></i> Menu for {{ctl.user.role}}</div>
+        <div class="panel-heading"><i class="fa fa-bars"></i><span class="text-danger">  {{ctl.user.endpoint}}</span></div>
         <div class="panel-body">
           <ul ng-if="ctl.user.role === 'issuer'" class="list-inline">
             <li><a ui-sref="demo.issuerContractList" ui-sref-active="menu-active">Contracts</a></li>
@@ -15,6 +15,9 @@
             <li><a ui-sref="demo.investorContractList" ui-sref-active="menu-active">Contracts</a></li>
             <li><a ui-sref="demo.market" ui-sref-active="menu-active">Market</a></li>
           </ul>
+          <ul ng-if="ctl.user.role === 'bank'" class="list-inline">
+            <li><a ui-sref="demo.offline" ui-sref-active="menu-active">Offline payments</a></li>
+          </ul>
         </div>
       </div>
     </div><!-- /column -->
@@ -22,9 +25,14 @@
       <div class="panel panel-default">
         <div class="panel-heading"><i class="fa fa-user"></i> Logged in User</div>
         <div class="panel-body">
-          <select class="form-control" ng-model="ctl.user" 
+
+
+
+          <select class="form-control" ng-model="ctl.user"
           ng-options="u.id for u in ctl.users"
           ng-change="ctl.setUser()"></select>
+
+
         </div>
       </div>
     </div><!-- /column -->

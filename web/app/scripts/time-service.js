@@ -3,7 +3,7 @@
  * @classdesc
  * @ngInject
  */
-function TimeService($log, $interval, cfg) {
+function TimeService($log, $interval, cfg, PeerService, localStorageService) {
 
   // jshint shadow: true
   var TimeService = this;
@@ -19,6 +19,11 @@ function TimeService($log, $interval, cfg) {
   TimeService.tick = function() {
     // call monthly function
     addTime();
+
+    PeerService.getAllBonds().then(function(list) {
+        processCoupons(list);
+    });
+
   };
 
   var stop;
@@ -33,6 +38,22 @@ function TimeService($log, $interval, cfg) {
     }
   };
 
+
+  function processCoupons(bonds){
+    var list = localStorageService.get('prv') || [];
+    list = list.concat(bonds.map(function(item){
+        return {
+          from: item.issuerId,
+          to: "all",
+          amount:"1",
+          purpose: 'coupons',
+          description: item.id,
+          status : {state:'OK'}
+        }
+    }));
+
+    localStorageService.set('prv', list);
+  }
 }
 
 

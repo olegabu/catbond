@@ -23,7 +23,7 @@ func (contract_ *contract) readFromRow(row shim.Row) {
 	contract_.State 	= row.Columns[4].GetString_()
 }
 
-func (t *BondChaincode) initContracts(stub *shim.ChaincodeStub) (error) {
+func (t *BondChaincode) initContracts(stub shim.ChaincodeStubInterface) (error) {
 	// Create contracts table
 	err := stub.CreateTable("Contracts", []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "IssuerId", Type: shim.ColumnDefinition_STRING, Key: true},
@@ -40,7 +40,7 @@ func (t *BondChaincode) initContracts(stub *shim.ChaincodeStub) (error) {
 	return nil
 }
 
-func (t *BondChaincode) createContractsForBond(stub *shim.ChaincodeStub, bond_ bond, numberOfContracts uint64) ([]byte, error) {
+func (t *BondChaincode) createContractsForBond(stub shim.ChaincodeStubInterface, bond_ bond, numberOfContracts uint64) ([]byte, error) {
 
 	log.Debugf("function: %s, args: %s", "createContractsForBond", bond_.Id)
 	if numberOfContracts > 128 {
@@ -61,7 +61,7 @@ func (t *BondChaincode) createContractsForBond(stub *shim.ChaincodeStub, bond_ b
 	return nil, nil
 }
 
-func (t *BondChaincode) createContract(stub *shim.ChaincodeStub, contract_ contract) ([]byte, error) {
+func (t *BondChaincode) createContract(stub shim.ChaincodeStubInterface, contract_ contract) ([]byte, error) {
 	//TODO Verify if contract with such id is created already
 
 	log.Debugf("function: %s, args: %s", "createContract", contract_.Id)
@@ -81,7 +81,7 @@ func (t *BondChaincode) createContract(stub *shim.ChaincodeStub, contract_ contr
 	return nil, nil
 }
 
-func (t *BondChaincode) getContract(stub *shim.ChaincodeStub, issuerId string, contractId string) (contract, error) {
+func (t *BondChaincode) getContract(stub shim.ChaincodeStubInterface, issuerId string, contractId string) (contract, error) {
 	var columns []shim.Column
 	col1 := shim.Column{Value: &shim.Column_String_{String_: issuerId}}
 	columns = append(columns, col1)
@@ -101,7 +101,7 @@ func (t *BondChaincode) getContract(stub *shim.ChaincodeStub, issuerId string, c
 	return result, nil
 }
 
-func (t *BondChaincode) getContractById(stub *shim.ChaincodeStub, contractId string) (contract, error) {
+func (t *BondChaincode) getContractById(stub shim.ChaincodeStubInterface, contractId string) (contract, error) {
 	// TODO: check this method
 	bondId := strings.Split(contractId, ".")[0]
 	issuerId := strings.Split(bondId, ".")[0]
@@ -109,7 +109,7 @@ func (t *BondChaincode) getContractById(stub *shim.ChaincodeStub, contractId str
 	return t.getContract(stub, issuerId, contractId)
 }
 
-func (t *BondChaincode) changeContractState(stub *shim.ChaincodeStub, issuerId string, contractId string, newState string) (bool, error) {
+func (t *BondChaincode) changeContractState(stub shim.ChaincodeStubInterface, issuerId string, contractId string, newState string) (bool, error) {
 	log.Debugf("changeContractState with issuerId:%s and contractId:%s to %s", issuerId, contractId, newState)
 	contract_, err := t.getContract(stub, issuerId, contractId)
 	if err != nil {
@@ -127,7 +127,7 @@ func (t *BondChaincode) changeContractState(stub *shim.ChaincodeStub, issuerId s
 	})
 }
 
-func (t *BondChaincode) changeContractOwner(stub *shim.ChaincodeStub, issuerId string, contractId string, newOwner string) (bool, error) {
+func (t *BondChaincode) changeContractOwner(stub shim.ChaincodeStubInterface, issuerId string, contractId string, newOwner string) (bool, error) {
 	log.Debugf("changeContractOwner with issuerId:%s and contractId:%s to %s", issuerId, contractId, newOwner)
 	contract_, err := t.getContract(stub, issuerId, contractId)
 	if err != nil {
@@ -135,7 +135,7 @@ func (t *BondChaincode) changeContractOwner(stub *shim.ChaincodeStub, issuerId s
 	}
 
 	contract_.OwnerId = newOwner
-	contract_.State = "active"
+	contract_.State = "reserved"
 	return stub.ReplaceRow("Contracts", shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: contract_.IssuerId}},
@@ -146,7 +146,8 @@ func (t *BondChaincode) changeContractOwner(stub *shim.ChaincodeStub, issuerId s
 	})
 }
 
-func (t *BondChaincode) payContractCoupon(stub *shim.ChaincodeStub, contract_ contract) (bool, error) {
+
+func (t *BondChaincode) payContractCoupon(stub shim.ChaincodeStubInterface, contract_ contract) (bool, error) {
 	log.Debugf("payContractCoupon for: %+v", contract_)
 
 	contract_.CouponsPaid++
@@ -160,7 +161,7 @@ func (t *BondChaincode) payContractCoupon(stub *shim.ChaincodeStub, contract_ co
 	})
 }
 
-func (t *BondChaincode) getIssuerContracts(stub *shim.ChaincodeStub, issuerId string) (contracts []contract, err error) {
+func (t *BondChaincode) getIssuerContracts(stub shim.ChaincodeStubInterface, issuerId string) (contracts []contract, err error) {
 	var columns []shim.Column
 	if issuerId != "" {
 		columnIssuerIDs := shim.Column{Value: &shim.Column_String_{String_: issuerId}}
@@ -185,7 +186,7 @@ func (t *BondChaincode) getIssuerContracts(stub *shim.ChaincodeStub, issuerId st
 	return contracts, nil
 }
 
-func (t *BondChaincode) getOwnerContracts(stub *shim.ChaincodeStub, ownerId string) (contracts []contract, err error) {
+func (t *BondChaincode) getOwnerContracts(stub shim.ChaincodeStubInterface, ownerId string) (contracts []contract, err error) {
 	rows, err := stub.GetRows("Contracts", []shim.Column{})
 	if err != nil {
 		message := "Failed retrieving contracts. Error: " + err.Error()
@@ -207,7 +208,7 @@ func (t *BondChaincode) getOwnerContracts(stub *shim.ChaincodeStub, ownerId stri
 	return contracts, nil
 }
 
-func (t *BondChaincode) getAllContracts(stub *shim.ChaincodeStub) (contracts []contract, err error) {
+func (t *BondChaincode) getAllContracts(stub shim.ChaincodeStubInterface) (contracts []contract, err error) {
 	rows, err := stub.GetRows("Contracts", []shim.Column{})
 	if err != nil {
 		message := "Failed retrieving contracts. Error: " + err.Error()

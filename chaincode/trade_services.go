@@ -42,7 +42,7 @@ func (trade_ *trade) toRow() (shim.Row) {
 	}
 }
 
-func (t *BondChaincode) initTrades(stub *shim.ChaincodeStub) (error) {
+func (t *BondChaincode) initTrades(stub shim.ChaincodeStubInterface) (error) {
 	// Create trades table
 	err := stub.CreateTable("Trades", []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "ID", Type: shim.ColumnDefinition_UINT64, Key: true},
@@ -64,7 +64,7 @@ func (t *BondChaincode) initTrades(stub *shim.ChaincodeStub) (error) {
 	return nil
 }
 
-func (t *BondChaincode) createTradeForContract(stub *shim.ChaincodeStub, contract_ contract, price uint64) ([]byte, error) {
+func (t *BondChaincode) createTradeForContract(stub shim.ChaincodeStubInterface, contract_ contract, price uint64) ([]byte, error) {
 	log.Debugf("function: %s, args: %s", "createTradeForContract", contract_.Id)
 	var trade_ trade
 	trade_.State = "offer"
@@ -88,7 +88,7 @@ func (t *BondChaincode) createTradeForContract(stub *shim.ChaincodeStub, contrac
 	return nil, err
 }
 
-func (t *BondChaincode) sell(stub *shim.ChaincodeStub, contractId string, price uint64) ([]byte, error) {
+func (t *BondChaincode) sell(stub shim.ChaincodeStubInterface, contractId string, price uint64) ([]byte, error) {
 	log.Debugf("function: %s, args: %s", "sell", contractId)
 
 	// Get Contract
@@ -108,10 +108,10 @@ func (t *BondChaincode) sell(stub *shim.ChaincodeStub, contractId string, price 
 	return nil, nil
 }
 
-func (t *BondChaincode) buy(stub *shim.ChaincodeStub, tradeId uint64, newOwnerId string) ([]byte, error) {
+func (t *BondChaincode) buy(stub shim.ChaincodeStubInterface, tradeId uint64, newOwnerId string) ([]byte, error) {
 	log.Debugf("function: %s, args: %s", "buy", tradeId)
 
-	trade_, err := t.getOfferTrade(stub, tradeId)
+	trade_, err := t.getTradeByType(stub, "offer", tradeId)
 	if err != nil {
 		message := "Failed buying trade. Error: " + err.Error()
 		log.Error(message)
@@ -136,6 +136,41 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, tradeId uint64, newOwnerId
 	// TODO add money transfer
 
 	// Create new trade entry with "settled" state
+	trade_.State = "reserved"
+	if ok, err := stub.ReplaceRow("Trades", trade_.toRow()); !ok {
+		log.Error("Failed inserting new trade: " + err.Error())
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func (t *BondChaincode) confirm(stub shim.ChaincodeStubInterface, contractId string) ([]byte, error) {
+	log.Debugf("function: %s, args: %s", "buy", contractId)
+
+	trade_, err := t.getOfferTradeForContract(stub, contractId, "reserved")
+	if err != nil {
+		message := "Failed confirming trade. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	// Get Contract
+	contract_, err := t.getContractById(stub, trade_.ContractId)
+	if err != nil {
+		message := "Failed retrieving contract. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	// Transfer Contract ownership
+	if _, err := t.changeContractState(stub, contract_.IssuerId, contract_.Id, "active"); err != nil {
+		message := "Failed transfering contract ownership. Error: " + err.Error()
+		log.Error(message)
+		return nil, errors.New(message)
+	}
+
+	// Create new trade entry with "settled" state
 	trade_.State = "settled"
 	if ok, err := stub.ReplaceRow("Trades", trade_.toRow()); !ok {
 		log.Error("Failed inserting new trade: " + err.Error())
@@ -145,7 +180,7 @@ func (t *BondChaincode) buy(stub *shim.ChaincodeStub, tradeId uint64, newOwnerId
 	return nil, nil
 }
 
-func (t *BondChaincode) getAllTrades(stub *shim.ChaincodeStub) (trades []trade, err error) {
+func (t *BondChaincode) getAllTrades(stub shim.ChaincodeStubInterface) (trades []trade, err error) {
 	rows, err := stub.GetRows("Trades", []shim.Column{})
 	if err != nil {
 		message := "Failed retrieving trades. Error: " + err.Error()
@@ -163,7 +198,7 @@ func (t *BondChaincode) getAllTrades(stub *shim.ChaincodeStub) (trades []trade, 
 	return trades, nil
 }
 
-func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade, err error) {
+func (t *BondChaincode) getTradesByType(stub shim.ChaincodeStubInterface, state string) (trades []trade, err error) {
 	rows, err := stub.GetRows("Trades", []shim.Column{})
 	if err != nil {
 		message := "Failed retrieving trades. Error: " + err.Error()
@@ -174,7 +209,7 @@ func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade
 	for row := range rows {
 		var result trade
 		result.readFromRow(row)
-		if result.State != "offer" {
+		if result.State != state {
 			continue
 		}
 		log.Debugf("getOfferTrades result includes: %+v", result)
@@ -184,7 +219,7 @@ func (t *BondChaincode) getOfferTrades(stub *shim.ChaincodeStub) (trades []trade
 	return trades, nil
 }
 
-func (t *BondChaincode) getOfferTrade(stub *shim.ChaincodeStub, tradeId uint64) (trade, error) {
+func (t *BondChaincode) getTradeByType(stub shim.ChaincodeStubInterface, state string, tradeId uint64) (trade, error) {
 	rows, err := stub.GetRows("Trades", []shim.Column{})
 	if err != nil {
 		message := "Failed retrieving trades. Error: " + err.Error()
@@ -195,7 +230,7 @@ func (t *BondChaincode) getOfferTrade(stub *shim.ChaincodeStub, tradeId uint64) 
 	for row := range rows {
 		var result trade
 		result.readFromRow(row)
-		if result.State == "offer" && result.Id == tradeId {
+		if result.State == state && result.Id == tradeId {
 			log.Debugf("getOfferTradeForContract returns: %+v", result)
 			return result, nil
 		}
@@ -203,7 +238,7 @@ func (t *BondChaincode) getOfferTrade(stub *shim.ChaincodeStub, tradeId uint64) 
 	return trade{}, errors.New("No trades found for id " + strconv.FormatUint(tradeId, 10))
 }
 
-func (t *BondChaincode) getOfferTradeForContract(stub *shim.ChaincodeStub, contractId string) (trade, error) {
+func (t *BondChaincode) getOfferTradeForContract(stub shim.ChaincodeStubInterface, contractId string, state string) (trade, error) {
 	rows, err := stub.GetRows("Trades", []shim.Column{})
 	if err != nil {
 		message := "Failed retrieving trades. Error: " + err.Error()
@@ -214,10 +249,32 @@ func (t *BondChaincode) getOfferTradeForContract(stub *shim.ChaincodeStub, contr
 	for row := range rows {
 		var result trade
 		result.readFromRow(row)
-		if result.State == "offer" && result.ContractId == contractId {
+		if result.State == state && result.ContractId == contractId {
 			log.Debugf("getOfferTradeForContract returns: %+v", result)
 			return result, nil
 		}
 	}
 	return trade{}, errors.New("No trades found for contract " + contractId)
+}
+
+func (t *BondChaincode) verifyTradeForContract(stub shim.ChaincodeStubInterface, contractId string, price uint64) (response) {
+	trade, err := t.getOfferTradeForContract(stub, contractId, "reserved")
+	log.Debugf("getOfferTradeForContract returns: %+v", trade)
+	var msg response
+	if err != nil {
+		msg.State = "ERROR"
+		msg.Msg = "Payment is not confirmed."
+		log.Debugf("contract id %s with state 'reserved' not found: %+v", contractId, err)
+		return msg
+	}
+	if trade.Price == price{
+		msg.State = "OK"
+		msg.Msg = "Approved"
+		log.Debugf("contract approved")
+	}else{
+		msg.State = "ERROR"
+		msg.Msg = "Incorrect price"
+		log.Debugf("contract incorrect")
+	}
+	return msg
 }

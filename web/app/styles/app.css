@@ -1,8 +1,8 @@
 /*
- * 
+ *
  */
- 
-.loading {  
+
+.loading {
   text-align: center;
   font-size: 2em;
 }
@@ -11,7 +11,7 @@
 	font-weight: bold;
 }
 
-/* fixes content shifting left on modal open https://github.com/twbs/bootstrap/commit/3f87bf46e463b113760a2e45158a684825bf9d50 */ 
+/* fixes content shifting left on modal open https://github.com/twbs/bootstrap/commit/3f87bf46e463b113760a2e45158a684825bf9d50 */
 body.modal-open,
 .modal-open .navbar-fixed-top,
 .modal-open .navbar-fixed-bottom {
@@ -26,10 +26,10 @@ body.modal-open,
 }
 
 .inline-icon-link {
-  cursor: pointer; 
+  cursor: pointer;
   margin-right: 1em;
 }
- 
+
 .icon-inline {
   font-size:x-large;
   vertical-align: middle;
@@ -38,7 +38,7 @@ body.modal-open,
 }
 
 .toptext {color: #333}
- 
+
 .row-padded-bottom, .row-border-bottom, .row-head, .row-inner-head {
   padding-bottom: 1em;
   margin-bottom: 1em;
@@ -71,7 +71,7 @@ p.description {
 }
 
 span.icon-pointer, span.icon-two, span.icon-three {
-  cursor: pointer; 
+  cursor: pointer;
   text-align: center;
 }
 
@@ -81,4 +81,111 @@ span.icon-three {
 
 span.icon-two {
   width: 50%;
+}
+
+
+
+
+
+
+
+
+
+
+/*
+ * Callouts
+ *
+ * Not quite alerts, but custom and helpful notes for folks reading the docs.
+ * Requires a base and modifier class.
+ */
+
+/* Common styles for all types */
+.bs-callout {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #eee;
+  border-left-width: 5px;
+  border-radius: 3px;
+}
+.bs-callout h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+.bs-callout p:last-child {
+  margin-bottom: 0;
+}
+.bs-callout code {
+  border-radius: 3px;
+}
+
+/* Tighten up space between multiple callouts */
+.bs-callout + .bs-callout {
+  margin-top: -5px;
+}
+
+/* Variations */
+.bs-callout-danger {
+  border-left-color: #ce4844;
+}
+.bs-callout-danger h4 {
+  color: #ce4844;
+}
+.bs-callout-warning {
+  border-left-color: #aa6708;
+}
+.bs-callout-warning h4 {
+  color: #aa6708;
+}
+.bs-callout-info {
+  border-left-color: #1b809e;
+}
+.bs-callout-info h2,
+.bs-callout-info h3,
+.bs-callout-info h4 {
+  color: #1b809e;
+}
+
+.bs-callout-inactive {
+  border-left-color: #9E9E9E;
+}
+.bs-callout-inactive h2,
+.bs-callout-inactive h3,
+.bs-callout-inactive h4 {
+  color: #9E9E9E;
+}
+
+.bs-callout{
+  position: relative;
+}
+
+@media (min-width: 992px) {
+/*@media (min-width: 750px) {*/
+/*@media (min-width: 1170px) {*/
+  .vertical-text {
+    transform: rotate(-90deg);
+    transform-origin: left top 0;
+    width: 150px;
+    text-align: right;
+  }
+
+
+  .bs-callout > h3.vertical-text{
+    position: absolute;
+    text-transform: uppercase;
+    left: -30px;
+    top: 130px;
+  }
+
+}
+
+@media (max-width: 992px) {
+   .bs-callout,
+   .bs-callout + .bs-callout{
+    margin-top: 50px;
+   }
+   .bs-callout > h3.vertical-text{
+    position: absolute;
+    text-transform: uppercase;
+    top: -50px;
+  }
 }

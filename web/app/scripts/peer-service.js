@@ -26,6 +26,19 @@ function PeerService($log, $q, $http, cfg, UserService) {
     return invoke('buy', ['' + tradeId, UserService.getUser().id]);
   };
 
+  PeerService.confirm = function(contractId) {
+    return invoke('confirm', [ contractId])
+  };
+
+  PeerService.payCoupons = function(issuerId, bondId) {
+    return invoke('couponsPaid', [issuerId, bondId])
+  };
+
+  PeerService.verify = function(description, price) {
+    return query('verifyBuyRequest', [description, price]);
+  };
+
+
   PeerService.sell = function(contractId, price) {
     return invoke('sell', [ contractId, '' + price])
   };
@@ -47,6 +60,10 @@ function PeerService($log, $q, $http, cfg, UserService) {
     return query('getBonds', [UserService.getUser().id]);
   };
 
+  PeerService.getAllBonds = function() {
+    return query('getBonds', []);
+  };
+
   PeerService.createBond = function(bond) {
     bond.maturityDate = getMaturityDateString(bond.term);
     return invoke('createBond', [UserService.getUser().id, getMaturityDateString(bond.term),
@@ -58,30 +75,31 @@ function PeerService($log, $q, $http, cfg, UserService) {
     $log.debug('PeerService.invoke');
 
     payload.method = 'invoke';
-    payload.params.ctorMsg['function'] = functionName;
-    payload.params.ctorMsg.args = functionArgs;
+//    payload.params.ctorMsg['function'] = functionName;
+    payload.params.ctorMsg.args = encodeToBase64(functionName, functionArgs);
     payload.params.secureContext = UserService.getUser().id;
 
     $log.debug('payload', payload);
 
-    return $http.post(cfg.endpoint, angular.copy(payload)).then(function(data) {
+    return $http.post(UserService.getUser().endpoint, angular.copy(payload)).then(function(data) {
       $log.debug('result', data.data.result);
     });
   };
 
   var query = function(functionName, functionArgs) {
     $log.debug('PeerService.query');
-    
+
     var d = $q.defer();
 
     payload.method = 'query';
-    payload.params.ctorMsg['function'] = functionName;
-    payload.params.ctorMsg.args = functionArgs;
+//    payload.params.ctorMsg['function'] = functionName;
+    payload.params.ctorMsg.args = encodeToBase64(functionName, functionArgs);
     payload.params.secureContext = UserService.getUser().id;
+
 
     $log.debug('payload', payload);
 
-    $http.post(cfg.endpoint, angular.copy(payload)).then(function(res) {
+    $http.post(UserService.getUser().endpoint, angular.copy(payload)).then(function(res) {
       // $log.debug('result', res.data.result);
       if(res.data.error) {
         logReject(d, res.data.error);
@@ -104,6 +122,13 @@ function PeerService($log, $q, $http, cfg, UserService) {
 
 }
 
+var encodeToBase64 = function(functionName, functionArgs) {
+    functionArgs.splice(0, 0, functionName);
+    for (var i = 0; i < functionArgs.length; i++) {
+        functionArgs[i] = btoa(functionArgs[i]);
+    }
+    return functionArgs
+};
 
 var getMaturityDate = function(term) {
   var now = new Date();

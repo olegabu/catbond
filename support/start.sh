@@ -20,7 +20,7 @@ gulp serve  &> /tmp/gulp.log &
 
 echo "Server started. Ready."
 
-sleep 3
+sleep 10
 
 cd $GOPATH/src/github.com/hyperledger/fabric/devenv/
 vagrant ssh -c 'docker ps -l -q | xargs docker attach'
