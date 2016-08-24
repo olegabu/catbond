@@ -10,7 +10,7 @@
       "function": "init",
       "args": []
     },
-    "secureContext": "auditor0",
+    "secureContext": "issuer0",
     "attributes": ["role"]
   },
   "id": 0

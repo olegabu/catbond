@@ -7,13 +7,14 @@ Please read the [functional spec document](docs/catbond.md).
     security.enabled = true
 
 # Changes to membersrvc.yaml 
-Add 5 more users
+Add 6 more users
 
-    auditor0: 1 yg5DVhm0er1z bank_a        00011
-    investor1: 1 b7pmSxzKNFiw bank_a        00012
-    investor0: 1 YsWZD4qQmYxo bank_a 00013
-    issuer1: 1 W8G0usrU7jRk bank_a        00014
-    issuer0: 1 H80SiB5ODKKQ bank_a 00015
+    auditor0: 1 yg5DVhm0er1z bank_a  
+    investor1: 1 b7pmSxzKNFiw bank_a 
+    investor0: 1 YsWZD4qQmYxo bank_a 
+    issuer1: 1 W8G0usrU7jRk bank_a   
+    issuer0: 1 H80SiB5ODKKQ bank_a
+    offlineServices: 1 H80SiB5ODKKQ bank_a
 
 
 And add correct atributes to the aca.attributes section
@@ -23,6 +24,7 @@ And add correct atributes to the aca.attributes section
     attribute-entry-4: investor0;bank_a;role;investor;2001-02-02T00:00:00-03:00;;
     attribute-entry-5: issuer1;bank_a;role;issuer;2015-01-01T00:00:00-03:00;;
     attribute-entry-6: issuer0;bank_a;role;issuer;2015-01-01T00:00:00-03:00;;
+    attribute-entry-7: offlineServices;bank_a;role;bank;2015-01-01T00:00:00-03:00;;
 
 run `support/deploy_chaincode.sh` to run membersrvc and one peer
 
